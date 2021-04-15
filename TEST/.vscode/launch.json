@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "al",
+            "request": "launch",
+            "name": "Local Container",
+            "environmentType": "OnPrem",
+            "server": "http://bcfeaturef",
+            "serverInstance": "BC",
+            "authentication": "UserPassword",
+            "breakOnError": false,
+            "enableLongRunningSqlStatements": true,
+            "enableSqlInformationDebugger": true,
+            "startupObjectType": "Page",
+            "startupObjectId": 130401
+        }
+    ]
+}

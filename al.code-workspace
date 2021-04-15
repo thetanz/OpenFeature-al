@@ -1,0 +1,83 @@
+{
+    "settings": {
+        "CRS.ObjectNameSuffix": "_FF_TSL",
+        "CRS.OnSaveAlFileAction": "Reorganize",
+        "CRS.DisableDefaultAlSnippets": true,
+        "CRS.RenameWithGit": true,
+        "CRS.FileNamePattern": "<ObjectNameShort>.<ObjectTypeShortPascalCase>.al",
+        "CRS.FileNamePatternExtensions": "<ObjectNameShort>.<ObjectTypeShortPascalCase>.al",
+        "CRS.FileNamePatternPageCustomizations": "<ObjectNameShort>.<ObjectTypeShortPascalCase>.al",
+        "CRS.RemoveSuffixFromFilename": true,
+        "CRS.RemoveUnderscoreFromFilename": true,
+        "al.packageCachePath": "../.alpackages",
+        "al.defaultLaunchConfigurationName": "Local Container",
+        "al.enableCodeAnalysis": true,
+        "al.codeAnalyzers": [
+            "${CodeCop}",
+            "${PerTenantExtensionCop}"
+        ],
+        "al.assemblyProbingPaths": [
+            "./.netpackages",
+            "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6"
+        ],
+        "al.snapshotOutputPath": "../.snapshots",
+        "al.snapshotDebuggingPath": "../.snapshots",
+        "files.exclude": {
+            ".vscode/rad.json": true,
+            ".vscode/al.code-snippets": true
+        },
+        "files.trimTrailingWhitespace": true,
+        "files.trimFinalNewlines": true,
+        "files.autoSave": "off",
+        "NAB.SigningCertificateName": "Theta Systems Limited",
+        "NAB.SignToolPath": "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17763.0\\x86\\signtool.exe",
+        "todohighlight.include": [
+            "**/*.js",
+            "**/*.html",
+            "**/*.css",
+            "**/*.al",
+            "**/*.ps1"
+        ],
+        "todohighlight.isEnable": true,
+        "cSpell.words": [
+            "alpackages",
+            "codeunit"
+        ],
+        "gitlens.codeLens.enabled": false,
+        "gitlens.statusBar.enabled": false
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-dynamics-smb.al",
+            "waldo.crs-al-language-extension",
+            "ms-azuretools.vscode-docker",
+            "dotjoshjohnson.xml",
+            "ms-vscode.powershell",
+            "streetsidesoftware.code-spell-checker",
+            "bartpermentier.al-toolbox",
+            "wayou.vscode-todo-highlight",
+            "humao.rest-client",
+            "eamodio.gitlens",
+            "andrzejzwierzchowski.al-code-outline",
+            "ms-vsts.team"
+        ]
+    },
+    "folders": [
+        {
+            "name": ".alpackages",
+            "path": ".alpackages"
+        },
+        {
+            "name": "docs",
+            "path": "docs"
+        },
+        {
+            "name": "MAIN",
+            "path": "MAIN"
+        },
+        {
+            "name": "TEST",
+            "path": "TEST"
+        }
+    ]
+}
