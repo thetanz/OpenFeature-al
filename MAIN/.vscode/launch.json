@@ -6,7 +6,7 @@
             "request": "launch",
             "name": "Local Container",
             "environmentType": "OnPrem",
-            "server": "http://bcfeaturef",
+            "server": "http://bccomm18",
             "serverInstance": "BC",
             "tenant": "default",
             "authentication": "UserPassword",

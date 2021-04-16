@@ -1,0 +1,27 @@
+{
+    "New Feature Block": {
+        "scope": "al",
+        "prefix": "ffn (new feature block)",
+        "body": [
+            "if StrPos(ApplicationArea(), '#$1,') <> 0 then begin",
+            "    $LINE_COMMENT $1 feature is enabled",
+            "    $TM_SELECTED_TEXT",
+            "end;"
+        ],
+        "description": "New feature block (FF)"
+    },
+    "Change Feature Block": {
+        "scope": "al",
+        "prefix": "ffc (change feature block)",
+        "body": [
+            "if StrPos(ApplicationArea(), '#$1,') <> 0 then begin",
+            "    $LINE_COMMENT $1 feature is enabled",
+            "    $2",
+            "end else begin",
+            "    $LINE_COMMENT $1 feature is disabled",
+            "    $TM_SELECTED_TEXT",
+            "end;"
+        ],
+        "description": "Change feature block (FF)"
+    }
+}

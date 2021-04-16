@@ -1,0 +1,41 @@
+{
+  "id": "b5c32185-6f69-42a0-b580-736601c8a84e",
+  "name": "Demo App",
+  "publisher": "Theta Systems Limited",
+  "version": "1.0.0.0",
+  "brief": "Feature Flagging Demo App",
+  "description": "Feature Flagging Demo App",
+  "privacyStatement": "https://www.theta.co.nz/media/3801/privacy-policy-for-theta-excel-importer-for-business-central.pdf",
+  "EULA": "https://www.theta.co.nz/media/3805/terms-and-conditions-for-appsource-apps-for-business-central.pdf",
+  "help": "https://www.theta.co.nz/contact-us",
+  "url": "https://www.theta.co.nz/",
+  "logo": "../logo.jpg",
+  "dependencies": [
+
+  ],
+  "screenshots": [
+
+  ],
+  "platform": "18.0.0.0",
+  "application": "18.0.0.0",
+  "idRanges": [
+    {
+      "from": 50100,
+      "to": 50199
+    }
+  ],
+  "contextSensitiveHelpUrl": "https://docs.microsoft.com/{0}/dynamics365/business-central",
+  "supportedLocales": [
+    "en-NZ",
+    "en-AU",
+    "en-US",
+    "en-GB"
+  ],
+  "showMyCode": false,
+  "runtime": "6.0",
+  "features": [
+    "TranslationFile",
+    "NoImplicitWith",
+    "ExcludeGeneratedTranslations"
+  ]
+}

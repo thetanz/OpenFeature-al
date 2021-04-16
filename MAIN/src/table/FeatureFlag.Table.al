@@ -12,6 +12,7 @@ table 58535 "FeatureFlag_FF_TSL"
             Caption = 'Key';
             DataClassification = CustomerContent;
             NotBlank = true;
+
             trigger OnValidate()
             var
                 FeatureFlag: Record FeatureFlag_FF_TSL;
@@ -85,6 +86,7 @@ table 58535 "FeatureFlag_FF_TSL"
             User.Get(UserSecurityId());
             if User."Contact Email" = '' then
                 Error(StrSubstNo(ShouldBeDefinedErr, User.FieldCaption("Contact Email"), User.TableCaption(), User.FieldCaption("User Name"), User."User Name"));
+            "Maintainer Email" := User."Contact Email"
         end
     end;
 }
