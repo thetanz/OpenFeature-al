@@ -3,9 +3,7 @@
      <img src="switch.png"
          alt="Switch Image" />
      <h2 align="center">FeatureFlags for AL</h2>
-     <img src="https://img.shields.io/github/last-commit/thetanz/featureflags-al.svg?logo=github&logoColor=white"
-         alt="GitHub last commit" />
-    <a href="https://github.com/thetanz/featureflags-al/commits/master">
+     <a href="https://github.com/thetanz/featureflags-al/commits/master">
     <img src="https://img.shields.io/github/last-commit/thetanz/featureflags-al.svg?logo=github&logoColor=white"
          alt="GitHub last commit" />
     </a>
@@ -17,8 +15,8 @@
     <img src="https://img.shields.io/github/issues-pr-raw/thetanz/featureflags-al.svg?logo=github&logoColor=white"
          alt="GitHub pull requests" />
     </a>
-    <a href="https://twitter.com/intent/tweet?text=Try this FeatureFlags for AL:&url=https%3A%2F%2Fgithub.com%2Fthetanz%2Ffeatureflags-al">
-    <img src="https://img.shields.sio/twitter/url/https/github.com/thetanz/featureflags-al.svg?logo=twitter"
+    <a href="https://twitter.com/intent/tweet?text=Try Feature Flags for AL:&url=https%3A%2F%2Fgithub.com%2Fthetanz%2Ffeatureflags-al">
+    <img src="https://img.shields.io/twitter/url/https/github.com/thetanz/featureflags-al.svg?logo=twitter"
          alt="GitHub tweet" />
     </a>
 </p>
