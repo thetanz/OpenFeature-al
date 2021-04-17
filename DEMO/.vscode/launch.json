@@ -12,9 +12,7 @@
             "authentication": "UserPassword",
             "breakOnError": true,
             "enableLongRunningSqlStatements": true,
-            "enableSqlInformationDebugger": true,
-            "startupObjectType": "Page",
-            "startupObjectId": 22
+            "enableSqlInformationDebugger": true
         }
     ]
 }
