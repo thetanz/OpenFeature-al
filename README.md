@@ -29,7 +29,28 @@ Ultimate project goal is to populate Feature Flags approach among Dynamics 365 B
 - **For development and on-prem installation:** clone this repository, compile and deploy an app
 - **For SaaS:** dependency reference will be provided shortly after first AppSource release
 ## Usage
-TBD
+Feature Flags extension allows development team to manage feature flags, rules when they are enabled. When feature indicated as enabled, extension takes care of appending [ApplicationArea](https://docs.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-applicationarea-property) with a enabled feature codeso then it will be enabled for current user session. 
+
+`It's not requier to use Feature Flags extension as a dependency.`
+### ApplicationArea for Pages
+Developer should define ApplicationArea to be equal to a Feature Code to all feature related page controls and actions:
+```javascript
+field("IsLocal_FF_TSL"; IsLocal)
+{
+     Caption = 'Local';
+     ToolTip = 'Indicates if customer is local.';
+     ApplicationArea = <FEATURE>;
+}
+```
+### ApplicationArea for Code
+Developer should wrap feature related code block into condition which checks if ApplicationArea includes Feature Codes:
+```javascript
+if StrPos(ApplicationArea(), '#<FEATURE>,') <> 0 then begin
+     // feature <FEATURE> is enabled
+     CompanyInfo.Get();
+     IsLocal := Rec."Country/Region Code" = CompanyInfo."Country/Region Code";
+end;
+```
 ## Roadmap
 See the [open issues](https://github.com/thetanz/featureflags-al/issues) for a list of proposed features (and known issues).
 ## Contributing
