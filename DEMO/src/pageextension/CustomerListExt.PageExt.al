@@ -2,6 +2,7 @@ pageextension 50100 "CustomerListExt_FF_TSL" extends "Customer List"
 {
     layout
     {
+        // New control for LOCALS feature
         addafter(Name)
         {
             field("IsLocal_FF_TSL"; IsLocal)
@@ -11,10 +12,21 @@ pageextension 50100 "CustomerListExt_FF_TSL" extends "Customer List"
                 ApplicationArea = All;
             }
         }
+        // New control for STRIPE feature
+        addafter(County)
+        {
+            field("StripeID_FF_TSL"; Rec.StripeID_FF_TSL)
+            {
+                Caption = 'Stripe ID';
+                ToolTip = 'Customer Stripe ID.';
+                ApplicationArea = All;
+            }
+        }
     }
 
     actions
     {
+        // New action for LOCALS feature
         addafter(PaymentRegistration)
         {
             action("NewWelcomeLocalEmail_FF_TSL")
@@ -57,6 +69,7 @@ pageextension 50100 "CustomerListExt_FF_TSL" extends "Customer List"
     var
         CompanyInfo: Record "Company Information";
     begin
+        // Nw code for LOCALS feature
         CompanyInfo.Get();
         IsLocal := Rec."Country/Region Code" = CompanyInfo."Country/Region Code";
     end;
