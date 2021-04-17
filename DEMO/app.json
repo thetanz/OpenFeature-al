@@ -10,6 +10,7 @@
   "help": "https://www.theta.co.nz/contact-us",
   "url": "https://www.theta.co.nz/",
   "logo": "../logo.jpg",
+  "suppressWarnings": ["AA0072"],
   "dependencies": [
 
   ],
