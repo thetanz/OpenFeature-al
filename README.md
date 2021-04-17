@@ -2,7 +2,9 @@
 <p align="center">
      <img src="switch.png"
          alt="Switch Image" />
-     <h2 align="center">FeatureFlags for AL</h2>
+</p>
+<h2 align="center">FeatureFlags for AL</h2>
+<p align="center">
      <a href="https://github.com/thetanz/featureflags-al/commits/master">
     <img src="https://img.shields.io/github/last-commit/thetanz/featureflags-al.svg?logo=github&logoColor=white"
          alt="GitHub last commit" />
