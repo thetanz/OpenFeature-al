@@ -43,7 +43,7 @@ field("IsLocal_FF_TSL"; IsLocal)
 }
 ```
 ### ApplicationArea for Code
-Developer should wrap feature related code block into condition which checks if ApplicationArea includes Feature Codes:
+Developer should wrap feature related code block into condition which checks if ApplicationArea includes Feature Codes. you can use [defined snippet](DEMO/.vscode/al.code-snippets) for this:
 ```javascript
 if StrPos(ApplicationArea(), '#<FEATURE>,') <> 0 then begin
      // feature <FEATURE> is enabled
