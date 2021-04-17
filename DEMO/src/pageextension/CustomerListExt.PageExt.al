@@ -69,7 +69,7 @@ pageextension 50100 "CustomerListExt_FF_TSL" extends "Customer List"
     var
         CompanyInfo: Record "Company Information";
     begin
-        // Nw code for LOCALS feature
+        // New code for LOCALS feature
         CompanyInfo.Get();
         IsLocal := Rec."Country/Region Code" = CompanyInfo."Country/Region Code";
     end;
