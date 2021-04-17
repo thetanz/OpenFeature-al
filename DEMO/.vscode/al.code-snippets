@@ -3,8 +3,8 @@
         "scope": "al",
         "prefix": "ffn (new feature block)",
         "body": [
-            "if StrPos(ApplicationArea(), '#$1,') <> 0 then begin",
-            "    $LINE_COMMENT $1 feature is enabled",
+            "if StrPos(ApplicationArea(), '#$0,') <> 0 then begin",
+            "    $LINE_COMMENT $0 feature is enabled",
             "    $TM_SELECTED_TEXT",
             "end;"
         ],
@@ -14,11 +14,11 @@
         "scope": "al",
         "prefix": "ffc (change feature block)",
         "body": [
-            "if StrPos(ApplicationArea(), '#$1,') <> 0 then begin",
-            "    $LINE_COMMENT $1 feature is enabled",
-            "    $2",
+            "if StrPos(ApplicationArea(), '#$0,') <> 0 then begin",
+            "    $LINE_COMMENT $0 feature is enabled",
+            "    $1",
             "end else begin",
-            "    $LINE_COMMENT $1 feature is disabled",
+            "    $LINE_COMMENT $0 feature is disabled",
             "    $TM_SELECTED_TEXT",
             "end;"
         ],
