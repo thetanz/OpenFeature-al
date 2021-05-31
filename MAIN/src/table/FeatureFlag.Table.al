@@ -73,9 +73,11 @@ table 58535 "FeatureFlag_FF_TSL"
     trigger OnDelete()
     var
         FeatureFlagCondition: Record FeatureFlagCondition_FF_TSL;
+        FeatureFlagMgt: Codeunit FeatureFlagMgt_FF_TSL;
     begin
         FeatureFlagCondition.SetRange(FeatureFlagKey, "Key");
-        FeatureFlagCondition.DeleteAll()
+        FeatureFlagCondition.DeleteAll();
+        FeatureFlagMgt.RefreshApplicationArea(false)
     end;
 
     trigger OnInsert()
