@@ -22,7 +22,7 @@
   "idRanges": [
     {
       "from": 58535,
-      "to": 58540
+      "to": 58539
     }
   ],
   "contextSensitiveHelpUrl": "http://featureflags.io/feature-flags/",
