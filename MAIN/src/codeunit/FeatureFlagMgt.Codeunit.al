@@ -32,7 +32,7 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
     begin
         ConditionCode := CopyStr(UserId(), 1, 20);
         User.SetRange("User Name", UserId());
-        AddConditionToLibrary(CopyStr(ConditionCode, 1, 20), CopyStr(UserFilterFunctionCodeLbl, 1, 10), User.GetView())
+        AddConditionToLibrary(CopyStr(ConditionCode, 1, 20), CopyStr(UserFilterFunctionCodeLbl, 1, 10), CopyStr(User.GetView(), 1, 2048))
     end;
 
     local procedure CreateLibrary()
@@ -62,11 +62,11 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
     var
         Condition: Record Condition_FF_TSL;
     begin
-        if not CalulatedCondition.Get(ConditionCode) then begin
+        if not TempCalulatedCondition.Get(ConditionCode) then begin
             Condition.Get(ConditionCode);
             RecalculateCondition(Condition, false);
         end;
-        exit(SatisfiedCondition.Get(ConditionCode))
+        exit(TempSatisfiedCondition.Get(ConditionCode))
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Condition_FF_TSL, 'OnAfterInsertEvent', '', true, true)]
@@ -156,21 +156,21 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
                 else
                     OnMatchCustomConditionEvent(Condition, Satisfied);
             end;
-            CalulatedCondition.Init();
-            CalulatedCondition.code := Condition.code;
-            if CalulatedCondition.Insert() then;
+            TempCalulatedCondition.Init();
+            TempCalulatedCondition.code := Condition.code;
+            if TempCalulatedCondition.Insert() then;
             if Satisfied then begin
-                SatisfiedCondition.Init();
-                SatisfiedCondition.code := Condition.code;
-                if SatisfiedCondition.Insert() then;
+                TempSatisfiedCondition.Init();
+                TempSatisfiedCondition.code := Condition.code;
+                if TempSatisfiedCondition.Insert() then;
             end else
-                if SatisfiedCondition.get(Condition.Code) then
-                    SatisfiedCondition.Delete();
+                if TempSatisfiedCondition.get(Condition.Code) then
+                    TempSatisfiedCondition.Delete();
         end else begin
-            if CalulatedCondition.get(Condition.Code) then
-                CalulatedCondition.Delete();
-            if SatisfiedCondition.get(Condition.Code) then
-                SatisfiedCondition.Delete();
+            if TempCalulatedCondition.get(Condition.Code) then
+                TempCalulatedCondition.Delete();
+            if TempSatisfiedCondition.get(Condition.Code) then
+                TempSatisfiedCondition.Delete();
         end
     end;
 
@@ -288,13 +288,13 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
             if rec.Argument <> '' then
                 FilterPageBuilder.SETVIEW(ItemName, rec.Argument);
             if FilterPageBuilder.RunModal() then begin
-                rec.Argument := FilterPageBuilder.GetView(ItemName, false);
+                rec.Argument := CopyStr(FilterPageBuilder.GetView(ItemName, false), 1, 2048);
                 // TODO: Extract only WHERE from view
             end;
         end;
     end;
 
-    procedure AddConditionToLibrary(Code: Code[20]; Function: Code[10]; Argument: Text[250]): Boolean
+    procedure AddConditionToLibrary(Code: Code[20]; Function: Code[10]; Argument: Text[2048]): Boolean
     var
         Condition: Record Condition_FF_TSL;
     begin
@@ -316,8 +316,8 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
         exit(StrPos(ApplicationArea(), '#' + "Key" + ',') <> 0)
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::LogInManagement, 'OnAfterLogInStart', '', true, true)]
-    local procedure OnAfterLogInStart()
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', true, true)]
+    local procedure OnAfterLogin()
     begin
         RefreshApplicationArea(true)
     end;
@@ -325,18 +325,18 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
     local procedure GetApplicationAreaSetup() ApplicationAreas: Text
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-        EnvironmentInfo: Codeunit "Environment Information";
-        RecRef: RecordRef;
+        EnvironmentInformation: Codeunit "Environment Information";
+        RecordRef: RecordRef;
         FieldRef: FieldRef;
         FieldIndex: Integer;
     begin
         ApplicationAreas := ApplicationAreaMgmtFacade.GetApplicationAreaSetup();
-        if (ApplicationAreas = '') and EnvironmentInfo.IsOnPrem() then begin
-            RecRef.Open(Database::"Application Area Setup");
+        if (ApplicationAreas = '') and EnvironmentInformation.IsOnPrem() then begin
+            RecordRef.Open(Database::"Application Area Setup");
             ApplicationAreas := '#All';
             // Index 1 to 3 are used for the Primary Key fields, we need to skip these fields
-            for FieldIndex := 4 to RecRef.FieldCount do begin
-                FieldRef := RecRef.FieldIndex(FieldIndex);
+            for FieldIndex := 4 to RecordRef.FieldCount do begin
+                FieldRef := RecordRef.FieldIndex(FieldIndex);
                 ApplicationAreas := ApplicationAreas + ',#' + DelChr(FieldRef.Name);
             end;
         end
@@ -344,7 +344,7 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
 
     procedure RefreshApplicationArea(RecalculateCondition: Boolean)
     var
-        ConditionTemp: Record Condition_FF_TSL temporary;
+        TempCondition: Record Condition_FF_TSL temporary;
         ConditionsInUse: Query ConditionsInUse_FF_TSL;
         ValidFeatureFlags: Query ValidFeatureFlags_FF_TSL;
         TextBuilderVar: TextBuilder;
@@ -353,10 +353,10 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
         if ConditionsInUse.Open() then
             while ConditionsInUse.Read() do begin
                 if RecalculateCondition then begin
-                    ConditionTemp.Code := ConditionsInUse.Code;
-                    ConditionTemp.Argument := ConditionsInUse.Argument;
-                    ConditionTemp.Function := ConditionsInUse.Function;
-                    RecalculateCondition(ConditionTemp, false);
+                    TempCondition.Code := ConditionsInUse.Code;
+                    TempCondition.Argument := ConditionsInUse.Argument;
+                    TempCondition.Function := ConditionsInUse.Function;
+                    RecalculateCondition(TempCondition, false);
                 end;
                 if not IsConditionSatisfied(ConditionsInUse.Code) then begin
                     if TextBuilderVarHasValue then
@@ -406,8 +406,8 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
     end;
     //#endregion FeatureFlag
     var
-        SatisfiedCondition: Record Condition_FF_TSL temporary;
-        CalulatedCondition: Record Condition_FF_TSL temporary;
+        TempSatisfiedCondition: Record Condition_FF_TSL temporary;
+        TempCalulatedCondition: Record Condition_FF_TSL temporary;
         UserFilterFunctionCodeLbl: Label 'USERF';
         UserFilterFuncitonDescLbl: Label 'User Filter';
         CompanyFilterFunctionCodeLbl: Label 'COMPANYF';
@@ -415,7 +415,6 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
         UserGroupFilterFunctionCodeLbl: Label 'USERGRPF';
         UserGroupFilterFuncitonDescLbl: Label 'User Group Filter';
         AllUsersConditionCodeLbl: Label 'ALL';
-        FormatItemNameLbl: Label '%1 record';
+        FormatItemNameLbl: Label '%1 record', Comment = '%1 - Table Caption';
         FeatureFlagFunctionalityKeyLbl: Label '#FFTSL';
-        FeatureFlagMaintainerNotBlankErr: Label 'User identified as feature flag maintainer could not have blank %1.';
 }

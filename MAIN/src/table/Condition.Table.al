@@ -19,7 +19,7 @@ table 58537 "Condition_FF_TSL"
             TableRelation = Function_FF_TSL;
             NotBlank = true;
         }
-        field(3; Argument; Text[250])
+        field(3; Argument; Text[2048])
         {
             Caption = 'Argument';
             DataClassification = CustomerContent;

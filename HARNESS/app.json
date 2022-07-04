@@ -25,8 +25,8 @@
   "application": "20.0.0.0",
   "idRanges": [
     {
-      "from": 58540,
-      "to": 58544
+      "from": 58655,
+      "to": 58659
     }
   ],
   "contextSensitiveHelpUrl": "https://docs.microsoft.com/{0}/dynamics365/business-central",
