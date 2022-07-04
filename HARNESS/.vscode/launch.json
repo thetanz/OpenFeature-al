@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "al",
+            "request": "launch",
+            "name": "Local Container",
+            "environmentType": "OnPrem",
+            "server": "http://bccomm20",
+            "serverInstance": "BC",
+            "authentication": "UserPassword",
+            "breakOnError": false,
+            "enableLongRunningSqlStatements": true,
+            "enableSqlInformationDebugger": true,
+            "tenant": "default"
+        }
+    ]
+}
