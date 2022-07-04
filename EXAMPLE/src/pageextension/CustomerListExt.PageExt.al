@@ -9,7 +9,7 @@ pageextension 50100 "CustomerListExt_FF_TSL" extends "Customer List"
             {
                 Caption = 'Local';
                 ToolTip = 'Indicates if customer is local.';
-                ApplicationArea = All;
+                ApplicationArea = LOCALS;
             }
         }
         // New control for STRIPE feature
@@ -19,7 +19,7 @@ pageextension 50100 "CustomerListExt_FF_TSL" extends "Customer List"
             {
                 Caption = 'Stripe ID';
                 ToolTip = 'Customer Stripe ID.';
-                ApplicationArea = All;
+                ApplicationArea = STRIPE;
             }
         }
     }
@@ -37,7 +37,7 @@ pageextension 50100 "CustomerListExt_FF_TSL" extends "Customer List"
                 PromotedCategory = Process;
                 Image = Email;
                 Visible = Rec."E-Mail" <> '';
-                ApplicationArea = All;
+                ApplicationArea = LOCALS;
 
                 trigger OnAction()
                 var
@@ -70,7 +70,9 @@ pageextension 50100 "CustomerListExt_FF_TSL" extends "Customer List"
         CompanyInfo: Record "Company Information";
     begin
         // New code for LOCALS feature
-        CompanyInfo.Get();
-        IsLocal := Rec."Country/Region Code" = CompanyInfo."Country/Region Code";
+        if StrPos(ApplicationArea(), '#LOCALS,') <> 0 then begin
+            CompanyInfo.Get();
+            IsLocal := Rec."Country/Region Code" = CompanyInfo."Country/Region Code";
+        end;
     end;
 }

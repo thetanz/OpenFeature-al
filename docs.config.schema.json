@@ -1,0 +1,63 @@
+{
+    "type": "object",
+    "description": "Configuration required to enable content publishing to docs.365extensions.com.",
+    "properties": {
+        "$schema": {
+            "enum": [
+                "../docs.config.schema.json"
+            ]
+        },
+        "code": {
+            "type": "string",
+            "description": "Unique short code for the app. Preferable use your app suffix or id, but make sure it's unique (https://thetaco1nz.sharepoint.com/:x:/s/NAVteam/EbpN-0s2lgpLnFy-mN5em_8Bs0uuE8oyURt6kGcrgVFg3g?e=rg79fA).",
+            "minLength": 2,
+            "maxLength": 36
+        },
+        "startPage": {
+            "type": "string",
+            "description": "Name of the Markdown file which will be a start page for the docs (e.g. Introduction, Changelog, etc.)).",
+            "minLength": 1
+        },
+        "publishing": {
+            "type": "object",
+            "description": "Configuration required to enable the app to be visible and installable for public.",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Published extension 'id' from 'app.json'.",
+                    "minLength": 36,
+                    "format": "uuid"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Readable name of the app.",
+                    "minLength": 1
+                },
+                "brief": {
+                    "type": "string",
+                    "description": "Brief description of the app package or key value it brings to the user.",
+                    "minLength": 1
+                },
+                "marketplace": {
+                    "enum": [
+                        "MSAppSource",
+                        "ThetaAppSource"
+                    ],
+                    "description": "Source from where user can download the app."
+                }
+            },
+            "required": [
+                "id",
+                "name",
+                "brief",
+                "marketplace"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "required": [
+        "code",
+        "startPage"
+    ],
+    "additionalProperties": false
+}

@@ -5,11 +5,11 @@
   "version": "1.0.0.0",
   "brief": "Feature Flagging / Toggling / Switching",
   "description": "Same as a brief one",
-  "privacyStatement": "https://www.theta.co.nz/media/3801/privacy-policy-for-theta-excel-importer-for-business-central.pdf",
+  "privacyStatement": "https://www.theta.co.nz/contact-us/privacy-policy",
   "EULA": "https://www.theta.co.nz/media/3805/terms-and-conditions-for-appsource-apps-for-business-central.pdf",
   "help": "https://www.theta.co.nz/contact-us",
   "url": "https://www.theta.co.nz/",
-  "logo": "../logo.jpg",
+  "logo": "../logo.png",
   "dependencies": [
     {
       "id": "dd0be2ea-f733-4d65-bb34-a28f4624fb14",
@@ -33,8 +33,8 @@
   "screenshots": [
 
   ],
-  "platform": "18.0.0.0",
-  "application": "18.0.0.0",
+  "platform": "20.0.0.0",
+  "application": "20.0.0.0",
   "idRanges": [
     {
       "from": 50000,
@@ -48,11 +48,13 @@
     "en-US",
     "en-GB"
   ],
-  "showMyCode": false,
-  "runtime": "6.0",
+  "resourceExposurePolicy": {
+    "allowDebugging": false,
+    "allowDownloadingSource": false,
+    "includeSourceInSymbolFile": false
+  },
+  "runtime": "9.0",
   "features": [
-    "TranslationFile",
-    "NoImplicitWith",
-    "ExcludeGeneratedTranslations"
+    "TranslationFile", "NoImplicitWith", "ExcludeGeneratedTranslations"
   ]
 }

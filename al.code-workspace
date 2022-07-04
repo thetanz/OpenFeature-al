@@ -23,15 +23,22 @@
         "al.snapshotOutputPath": "../.snapshots",
         "al.snapshotDebuggingPath": "../.snapshots",
         "files.exclude": {
+            "**/.snapshots": true,
             ".vscode/rad.json": true,
-            ".vscode/al.code-snippets": true
+            ".vscode/al.code-snippets": true,
+            ".vscode/md.code-snippets": true,
+            ".vscode/json.code-snippets": true
         },
         "files.trimTrailingWhitespace": true,
         "files.trimFinalNewlines": true,
         "files.autoSave": "off",
-        "textmarker.defaultHighlightColor": "purple",
+        "[markdown]": {
+            "files.trimTrailingWhitespace": false
+        },
+        "markdown.experimental.validate.enabled": true,
         "NAB.SigningCertificateName": "Theta Systems Limited",
-        "NAB.SignToolPath": "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17763.0\\x86\\signtool.exe",
+        "NAB.SigningTimeStampServer": "http://timestamp.digicert.com",
+        "NAB.SignToolPath": "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.19041.0\\x86\\signtool.exe",
         "todohighlight.include": [
             "**/*.js",
             "**/*.html",
@@ -42,7 +49,8 @@
         "todohighlight.isEnable": true,
         "cSpell.words": [
             "alpackages",
-            "codeunit"
+            "codeunit",
+            "featureflags"
         ],
         "gitlens.codeLens.enabled": false,
         "gitlens.statusBar.enabled": false
@@ -60,29 +68,30 @@
             "humao.rest-client",
             "eamodio.gitlens",
             "andrzejzwierzchowski.al-code-outline",
-            "ms-vsts.team"
+            "usernamehw.errorlens",
+            "nwallace.createGUID",
+            "augustocdias.tasks-shell-input",
+            "ms-vscode.wordcount"
         ]
     },
     "folders": [
         {
-            "name": ".alpackages",
             "path": ".alpackages"
         },
         {
-            "name": "docs",
-            "path": "docs"
+            "path": "DOCS"
         },
         {
-            "name": "MAIN",
             "path": "MAIN"
         },
         {
-            "name": "TEST",
             "path": "TEST"
         },
         {
-            "name": "DEMO",
-            "path": "DEMO"
+            "path": "EXAMPLE"
+        },
+        {
+            "path": "HARNESS"
         }
     ]
 }

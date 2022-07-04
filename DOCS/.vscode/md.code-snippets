@@ -1,0 +1,160 @@
+{
+    "Docs Unreleased Changelog": {
+        "scope": "markdown",
+        "prefix": "dunreleased (THETA)",
+        "body": [
+            "## [Unreleased]",
+            "${1:### Fixed",
+            "<!---for any bug fixes--->",
+            "- ${2}",
+            "}${3:### Added",
+            "<!---for new features--->",
+            "- ${4}",
+            "}${5:### Changed",
+            "<!---for changes in existing functionality--->",
+            "- ${6}",
+            "}${7:### Deprecated",
+            "<!---for soon-to-be removed features--->",
+            "- ${8}",
+            "}${9:### Removed",
+            "<!---for now removed features--->",
+            "- ${10}",
+            "}${11:### Security",
+            "<!---in case of vulnerabilities--->",
+            "- ${12}",
+            "}"
+        ],
+        "description": "Changelog Unreleased template (THETA)"
+    },
+    "Docs Version Changelog": {
+        "scope": "markdown",
+        "prefix": "dverison (THETA)",
+        "body": [
+            "## [${1:1}.${2:0}.${3:0}.${4:0}] `($CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE)`"
+        ],
+        "description": "Changelog Version (THETA)"
+    },
+    "Docs Fixed Changelog": {
+        "scope": "markdown",
+        "prefix": "dfixed (THETA)",
+        "body": [
+            "### Fixed",
+            "<!---for any bug fixes--->",
+            "- ${1}"
+        ],
+        "description": "Changelog Fixed (THETA)"
+    },
+    "Docs Added Changelog": {
+        "scope": "markdown",
+        "prefix": "dadded (THETA)",
+        "body": [
+            "### Added",
+            "<!---for new features--->",
+            "- ${1}",
+        ],
+        "description": "Changelog Added (THETA)"
+    },
+    "Docs Changed Changelog": {
+        "scope": "markdown",
+        "prefix": "dchanged (THETA)",
+        "body": [
+            "### Changed",
+            "<!---for changes in existing functionality--->",
+            "- ${1}",
+        ],
+        "description": "Changelog Changed (THETA)"
+    },
+    "Docs Deprecated Changelog": {
+        "scope": "markdown",
+        "prefix": "ddeprecated (THETA)",
+        "body": [
+            "### Deprecated",
+            "<!---for soon-to-be removed features--->",
+            "- ${1}",
+        ],
+        "description": "Changelog Deprecated (THETA)"
+    },
+    "Docs Removed Changelog": {
+        "scope": "markdown",
+        "prefix": "dremoved (THETA)",
+        "body": [
+            "### Removed",
+            "<!---for now removed features--->",
+            "- ${1}",
+        ],
+        "description": "Changelog Removed (THETA)"
+    },
+    "Docs Security Changelog": {
+        "scope": "markdown",
+        "prefix": "dsecurity (THETA)",
+        "body": [
+            "### Security",
+            "<!---in case of vulnerabilities--->",
+            "- ${1}",
+        ],
+        "description": "Changelog Security (THETA)"
+    },
+    "Docs Method Full": {
+        "scope": "markdown",
+        "prefix": "dmethod (THETA)",
+        "body": [
+            "### ${1} (Method)",
+            "${2}",
+            "#### ${1}(${3:Text};${4:Text}):${5:Boolean}",
+            "![](https://img.shields.io/badge/version-${6:1.0.0.0}+-success)",
+            "",
+            "```sql",
+            "${1}(${7:Parameter1},${8:Parameter2})",
+            "```",
+            "##### Parameters",
+            "| Name | Type | Description |",
+            "| - | - | - |",
+            "| ${7:Parameter1} | ${3:Text} | ${9} |",
+            "| ${8:Parameter2} | ${4:Text} | ${10} |",
+            "##### Returns",
+            "| Type | Description |",
+            "| - | - |",
+            "| ${5:Boolean} | ${11} |",
+            "<details>",
+            "  <summary>Example</summary>",
+            "  <div>",
+            "```sql",
+            "${12}",
+            "```",
+            "  </div>",
+            "</details>",
+        ],
+        "description": "Method Full (THETA)"
+    },
+    "Docs Metadata": {
+        "scope": "markdown",
+        "prefix": "dmeta (THETA)",
+        "body": [
+            "---",
+            "sidebar_position: ${1}${2:",
+            "title: ${3}}",
+            "---"
+        ],
+        "description": "Metadata (Accepted fields: https://docusaurus.io/docs/api/plugins/@docusaurus/plugin-content-docs#markdown-front-matter) (THETA)"
+    },
+    "Docs Zoomable Image": {
+        "scope": "markdown",
+        "prefix": "dzoom (THETA)",
+        "body": [
+            "_![](${1:./images/${2}.jpg})_"
+        ],
+        "description": "Zoomable Image (THETA)"
+    },
+    "Docs See Also": {
+        "scope": "markdown",
+        "prefix": "dalso (THETA)",
+        "body": [
+            "",
+            ":::tip See Also",
+            "- [${1}](${2:./${3}.md})${4:",
+            "- [${5}](${6:./${7}.md})}",
+            ":::"
+        ],
+        "description": "See Also (THETA)"
+    }
+}
