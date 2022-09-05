@@ -4,6 +4,7 @@ table 58535 "FeatureFlag_FF_TSL"
     DataPerCompany = false;
     Caption = 'Feature Flag';
     LookupPageId = FeatureFlags_FF_TSL;
+    Access = Internal;
 
     fields
     {
@@ -16,12 +17,13 @@ table 58535 "FeatureFlag_FF_TSL"
             trigger OnValidate()
             var
                 FeatureFlag: Record FeatureFlag_FF_TSL;
-                Regex: Codeunit DotNet_Regex;
+                Regex: Codeunit Regex;
+                KeyShouldBeUniqueErr: Label 'Feature Flag Key should not be a part of another key.';
             begin
                 Regex.Regex('[^0-9a-zA-Z]+');
                 "Key" := CopyStr(Regex.Replace("Key", ''), 1, 30);
                 FeatureFlag.SetFilter("Key", '<>%1', "Key");
-                IF FeatureFlag.FindSet() then
+                if FeatureFlag.FindSet() then
                     repeat
                         if StrPos(FeatureFlag."Key", "Key") > 0 then
                             Error(KeyShouldBeUniqueErr);
@@ -66,10 +68,6 @@ table 58535 "FeatureFlag_FF_TSL"
         }
     }
 
-    var
-        KeyShouldBeUniqueErr: Label 'Feature Flag Key should not be a part of another key.';
-        ShouldBeDefinedErr: Label 'You must specify %1 in %2 %3="%4".';
-
     trigger OnDelete()
     var
         FeatureFlagCondition: Record FeatureFlagCondition_FF_TSL;
@@ -83,11 +81,17 @@ table 58535 "FeatureFlag_FF_TSL"
     trigger OnInsert()
     var
         User: Record User;
+        ShouldBeDefinedErr: Label 'You must specify %1 in %2 %3="%4".', Comment = '%1 - Field Caption, %2 - Table Caption, %3 - Field Caption, %4 - Field Value';
     begin
         if "Maintainer Email" = '' then begin
             User.Get(UserSecurityId());
             if User."Contact Email" = '' then
-                Error(StrSubstNo(ShouldBeDefinedErr, User.FieldCaption("Contact Email"), User.TableCaption(), User.FieldCaption("User Name"), User."User Name"));
+                Error(
+                    ShouldBeDefinedErr,
+                    User.FieldCaption("Contact Email"),
+                    User.TableCaption(),
+                    User.FieldCaption("User Name"),
+                    User."User Name");
             "Maintainer Email" := User."Contact Email"
         end
     end;

@@ -1,6 +1,8 @@
 codeunit 58536 "UpgradeFeatureFlags_FF_TSL"
 {
     Subtype = Upgrade;
+    Access = Internal;
+
     trigger OnUpgradePerDatabase()
     begin
         if GetDataVersion() <= Version.Create('1.0.0.0') then

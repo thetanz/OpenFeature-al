@@ -4,6 +4,8 @@ table 58537 "Condition_FF_TSL"
     DataPerCompany = false;
     Caption = 'Condition';
     LookupPageId = Conditions_FF_TSL;
+    Access = Internal;
+
     fields
     {
         field(1; "Code"; Code[20])
@@ -23,15 +25,18 @@ table 58537 "Condition_FF_TSL"
         {
             Caption = 'Argument';
             DataClassification = CustomerContent;
+
             trigger OnValidate()
             begin
                 TestField(Function);
             end;
 
             trigger OnLookup()
+            var
+                FeatureFlagMgt: Codeunit FeatureFlagMgt_FF_TSL;
             begin
                 TestField(Function);
-                OnAfterLookupArgumentEvent(Rec)
+                FeatureFlagMgt.LookupConditionArgument(Function, Argument)
             end;
         }
     }
@@ -55,10 +60,5 @@ table 58537 "Condition_FF_TSL"
         if not FeatureFlagCondition.IsEmpty() then
             if Confirm(DeleteQst) then
                 FeatureFlagCondition.DeleteAll();
-    end;
-
-    [BusinessEvent(false)]
-    local procedure OnAfterLookupArgumentEvent(VAR Rec: Record Condition_FF_TSL)
-    begin
     end;
 }

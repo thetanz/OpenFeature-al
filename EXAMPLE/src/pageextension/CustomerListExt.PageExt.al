@@ -5,7 +5,7 @@ pageextension 50100 "CustomerListExt_FF_TSL" extends "Customer List"
         // New control for LOCALS feature
         addafter(Name)
         {
-            field("IsLocal_FF_TSL"; IsLocal)
+            field(IsLocal_FF_TSL; IsLocal)
             {
                 Caption = 'Local';
                 ToolTip = 'Indicates if customer is local.';
@@ -15,7 +15,7 @@ pageextension 50100 "CustomerListExt_FF_TSL" extends "Customer List"
         // New control for STRIPE feature
         addafter(County)
         {
-            field("StripeID_FF_TSL"; Rec.StripeID_FF_TSL)
+            field(StripeID_FF_TSL; Rec.StripeID_FF_TSL)
             {
                 Caption = 'Stripe ID';
                 ToolTip = 'Customer Stripe ID.';
@@ -29,7 +29,7 @@ pageextension 50100 "CustomerListExt_FF_TSL" extends "Customer List"
         // New action for LOCALS feature
         addafter(PaymentRegistration)
         {
-            action("NewWelcomeLocalEmail_FF_TSL")
+            action(NewWelcomeLocalEmail_FF_TSL)
             {
                 Caption = 'Send &Welcome Email';
                 ToolTip = 'Sends local customer a warm welcome email.';
@@ -67,12 +67,12 @@ pageextension 50100 "CustomerListExt_FF_TSL" extends "Customer List"
 
     trigger OnAfterGetRecord()
     var
-        CompanyInfo: Record "Company Information";
+        CompanyInformation: Record "Company Information";
     begin
         // New code for LOCALS feature
         if StrPos(ApplicationArea(), '#LOCALS,') <> 0 then begin
-            CompanyInfo.Get();
-            IsLocal := Rec."Country/Region Code" = CompanyInfo."Country/Region Code";
+            CompanyInformation.Get();
+            IsLocal := Rec."Country/Region Code" = CompanyInformation."Country/Region Code";
         end;
     end;
 }

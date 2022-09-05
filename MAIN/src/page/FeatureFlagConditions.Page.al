@@ -4,6 +4,7 @@ page 58539 "FeatureFlagConditions_FF_TSL"
     SourceTable = FeatureFlagCondition_FF_TSL;
     Caption = 'Conditions';
     RefreshOnActivate = true;
+
     layout
     {
         area(content)
@@ -13,6 +14,7 @@ page 58539 "FeatureFlagConditions_FF_TSL"
                 field(ConditionCode; Rec.ConditionCode)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the Condition Code field.';
 
                     trigger OnValidate()
                     begin
@@ -24,6 +26,7 @@ page 58539 "FeatureFlagConditions_FF_TSL"
                     ApplicationArea = All;
                     Editable = false;
                     Caption = 'Satisfied';
+                    ToolTip = 'Specifies the value of the Satisfied field.';
                 }
             }
         }

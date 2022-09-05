@@ -4,6 +4,7 @@ table 58536 "Function_FF_TSL"
     DataPerCompany = false;
     Caption = 'Function';
     LookupPageId = Functions_FF_TSL;
+    Access = Internal;
 
     fields
     {

@@ -4,6 +4,7 @@ page 58538 "FeatureFlagCondFactbox_FF_TSL"
     SourceTable = FeatureFlagCondition_FF_TSL;
     Editable = false;
     Caption = 'Conditions';
+
     layout
     {
         area(content)
@@ -13,11 +14,13 @@ page 58538 "FeatureFlagCondFactbox_FF_TSL"
                 field(ConditionCode; Rec.ConditionCode)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the Condition Code field.';
                 }
                 field(SatisfiedField; Satisfied)
                 {
                     ApplicationArea = All;
                     Caption = 'Satisfied';
+                    ToolTip = 'Specifies the value of the Satisfied field.';
                 }
             }
         }

@@ -89,6 +89,7 @@ page 58535 "FeatureFlags_FF_TSL"
                 PromotedCategory = Category4;
                 PromotedOnly = true;
                 Ellipsis = true;
+                ToolTip = 'Executes the Conditions action.';
             }
         }
     }

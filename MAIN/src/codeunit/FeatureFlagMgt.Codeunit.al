@@ -3,6 +3,7 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
     SingleInstance = true;
 
     //#region Function
+
     procedure AddFunctionToLibrary(Code: Code[10]; Description: Text[30]): Boolean
     var
         "Function": Record Function_FF_TSL;
@@ -13,20 +14,31 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
         exit(Function.Insert())
     end;
 
+    [EventSubscriber(ObjectType::Page, Page::Functions_FF_TSL, 'OnOpenPageEvent', '', true, true)]
+    local procedure OnOpenFunctionsPage()
+    begin
+        OnAddFunctionsToLibraryEvent()
+    end;
+
     [BusinessEvent(false)]
     local procedure OnAddFunctionsToLibraryEvent()
     begin
 
     end;
+
     //#endregion Function
+
     //#region CreateLibrary
-    procedure AddAllUsersConditionToLibrary() ConditionCode: Code[20]
+
+    internal procedure AddAllUsersConditionToLibrary() ConditionCode: Code[20]
+    var
+        AllUsersConditionCodeLbl: Label 'ALL';
     begin
         ConditionCode := AllUsersConditionCodeLbl;
         AddConditionToLibrary(CopyStr(ConditionCode, 1, 20), CopyStr(UserFilterFunctionCodeLbl, 1, 10), '')
     end;
 
-    procedure AddCurrentUserConditionToLibrary() ConditionCode: Code[20]
+    internal procedure AddCurrentUserConditionToLibrary() ConditionCode: Code[20]
     var
         User: Record User;
     begin
@@ -36,11 +48,14 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
     end;
 
     local procedure CreateLibrary()
+    var
+        UserFilterFunctionDescLbl: Label 'User Filter';
+        CompanyFilterFunctionDescLbl: Label 'Company Filter';
+        UserGroupFilterFunctionDescLbl: Label 'User Group Filter';
     begin
-        AddFunctionToLibrary(CopyStr(UserFilterFunctionCodeLbl, 1, 10), CopyStr(UserFilterFuncitonDescLbl, 1, 30));
-        AddFunctionToLibrary(CopyStr(UserGroupFilterFunctionCodeLbl, 1, 10), CopyStr(UserGroupFilterFuncitonDescLbl, 1, 30));
-        AddFunctionToLibrary(CopyStr(CompanyFilterFunctionCodeLbl, 1, 10), CopyStr(CompanyFilterFuncitonDescLbl, 1, 30));
-        OnAddFunctionsToLibraryEvent();
+        AddFunctionToLibrary(CopyStr(UserFilterFunctionCodeLbl, 1, 10), CopyStr(UserFilterFunctionDescLbl, 1, 30));
+        AddFunctionToLibrary(CopyStr(UserGroupFilterFunctionCodeLbl, 1, 10), CopyStr(UserGroupFilterFunctionDescLbl, 1, 30));
+        AddFunctionToLibrary(CopyStr(CompanyFilterFunctionCodeLbl, 1, 10), CopyStr(CompanyFilterFunctionDescLbl, 1, 30));
         AddAllUsersConditionToLibrary();
         OnAddConditionsToLibraryEvent();
     end;
@@ -56,21 +71,75 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
     begin
         CreateLibrary()
     end;
+
     //#endregion CreateLibrary
+
     //#region Condition
-    procedure IsConditionSatisfied(ConditionCode: Code[20]): Boolean
+
+    internal procedure IsConditionSatisfied(ConditionCode: Code[20]): Boolean
     var
         Condition: Record Condition_FF_TSL;
     begin
-        if not TempCalulatedCondition.Get(ConditionCode) then begin
+        if not TempCalculatedCondition.Get(ConditionCode) then begin
             Condition.Get(ConditionCode);
             RecalculateCondition(Condition, false);
         end;
         exit(TempSatisfiedCondition.Get(ConditionCode))
     end;
 
+    internal procedure LookupConditionArgument(Function: Code[10]; var Argument: Text[2048])
+    var
+        User: Record User;
+        UserGroup: Record "User Group";
+        Company: Record Company;
+        FilterPageBuilder: FilterPageBuilder;
+        ItemName: Text;
+    begin
+        if Function in [UserFilterFunctionCodeLbl, UserGroupFilterFunctionCodeLbl, CompanyFilterFunctionCodeLbl] then begin
+            case Function of
+                UserFilterFunctionCodeLbl:
+                    begin
+                        ItemName := StrSubstNo(FormatItemNameLbl, User.TableCaption());
+                        FilterPageBuilder.AddTable(ItemName, DATABASE::User);
+                        FilterPageBuilder.AddFieldNo(ItemName, User.FieldNo("User Name"));
+                        FilterPageBuilder.AddFieldNo(ItemName, User.FieldNo("Full Name"));
+                        FilterPageBuilder.AddFieldNo(ItemName, User.FieldNo("Contact Email"));
+                        FilterPageBuilder.AddFieldNo(ItemName, User.FieldNo("License Type"));
+                    end;
+                UserGroupFilterFunctionCodeLbl:
+                    begin
+                        ItemName := StrSubstNo(FormatItemNameLbl, UserGroup.TableCaption());
+                        FilterPageBuilder.AddTable(ItemName, DATABASE::"User Group");
+                        FilterPageBuilder.AddFieldNo(ItemName, UserGroup.FieldNo(Code));
+                        FilterPageBuilder.AddFieldNo(ItemName, UserGroup.FieldNo("Default Profile ID"));
+                    end;
+                CompanyFilterFunctionCodeLbl:
+                    begin
+                        ItemName := StrSubstNo(FormatItemNameLbl, Company.TableCaption());
+                        FilterPageBuilder.AddTable(ItemName, DATABASE::Company);
+                        FilterPageBuilder.AddFieldNo(ItemName, Company.FieldNo(Name));
+                        FilterPageBuilder.AddFieldNo(ItemName, Company.FieldNo("Display Name"));
+                        FilterPageBuilder.AddFieldNo(ItemName, Company.FieldNo("Evaluation Company"));
+                    end;
+            end;
+            if Argument <> '' then
+                FilterPageBuilder.SetView(ItemName, Argument);
+            if FilterPageBuilder.RunModal() then begin
+                Argument := CopyStr(FilterPageBuilder.GetView(ItemName, false), 1, 2048);
+                // TODO: Extract only WHERE from view
+            end;
+        end else
+            OnLookupConditionArgument(Function, Argument)
+    end;
+
+    [BusinessEvent(false)]
+    local procedure OnLookupConditionArgument(Function: Code[10]; var Argument: Text[2048])
+    begin
+
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::Condition_FF_TSL, 'OnAfterInsertEvent', '', true, true)]
-    local procedure OnAfterInsertCondition(VAR Rec: Record Condition_FF_TSL; RunTrigger: Boolean)
+    local procedure OnAfterInsertCondition(var Rec: Record Condition_FF_TSL; RunTrigger: Boolean)
     begin
         if RunTrigger then
             RecalculateCondition(Rec, false)
@@ -86,7 +155,7 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Condition_FF_TSL, 'OnAfterModifyEvent', '', true, true)]
-    local procedure OnAfterModifyCondition(VAR Rec: Record Condition_FF_TSL; var xRec: Record Condition_FF_TSL; RunTrigger: Boolean)
+    local procedure OnAfterModifyCondition(var Rec: Record Condition_FF_TSL; var xRec: Record Condition_FF_TSL; RunTrigger: Boolean)
     begin
         if RunTrigger then begin
             RecalculateCondition(Rec, false);
@@ -95,7 +164,7 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Condition_FF_TSL, 'OnAfterRenameEvent', '', true, true)]
-    local procedure OnAfterRenameCondition(VAR Rec: Record Condition_FF_TSL; var xRec: Record Condition_FF_TSL; RunTrigger: Boolean)
+    local procedure OnAfterRenameCondition(var Rec: Record Condition_FF_TSL; var xRec: Record Condition_FF_TSL; RunTrigger: Boolean)
     begin
         if RunTrigger then begin
             RecalculateCondition(xRec, true);
@@ -104,7 +173,7 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Condition_FF_TSL, 'OnAfterDeleteEvent', '', true, true)]
-    local procedure OnAfterDeleteCondition(VAR Rec: Record Condition_FF_TSL; RunTrigger: Boolean)
+    local procedure OnAfterDeleteCondition(var Rec: Record Condition_FF_TSL; RunTrigger: Boolean)
     begin
         if RunTrigger then begin
             RecalculateCondition(Rec, true);
@@ -113,34 +182,34 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::FeatureFlagCondition_FF_TSL, 'OnAfterInsertEvent', '', true, true)]
-    local procedure OnAfterInsertFeatureFlagCondition(VAR Rec: Record FeatureFlagCondition_FF_TSL; RunTrigger: Boolean)
+    local procedure OnAfterInsertFeatureFlagCondition(var Rec: Record FeatureFlagCondition_FF_TSL; RunTrigger: Boolean)
     begin
         if RunTrigger then
             RefreshApplicationArea(false)
     end;
 
     [EventSubscriber(ObjectType::Table, Database::FeatureFlagCondition_FF_TSL, 'OnAfterModifyEvent', '', true, true)]
-    local procedure OnAfterModifyFeatureFlagCondition(VAR Rec: Record FeatureFlagCondition_FF_TSL; VAR xRec: Record FeatureFlagCondition_FF_TSL; RunTrigger: Boolean)
+    local procedure OnAfterModifyFeatureFlagCondition(var Rec: Record FeatureFlagCondition_FF_TSL; var xRec: Record FeatureFlagCondition_FF_TSL; RunTrigger: Boolean)
     begin
         if RunTrigger then
             RefreshApplicationArea(false)
     end;
 
     [EventSubscriber(ObjectType::Table, Database::FeatureFlagCondition_FF_TSL, 'OnAfterRenameEvent', '', true, true)]
-    local procedure OnAfterRenameFeatureFlagCondition(VAR Rec: Record FeatureFlagCondition_FF_TSL; VAR xRec: Record FeatureFlagCondition_FF_TSL; RunTrigger: Boolean)
+    local procedure OnAfterRenameFeatureFlagCondition(var Rec: Record FeatureFlagCondition_FF_TSL; var xRec: Record FeatureFlagCondition_FF_TSL; RunTrigger: Boolean)
     begin
         if RunTrigger then
             RefreshApplicationArea(false)
     end;
 
     [EventSubscriber(ObjectType::Table, Database::FeatureFlagCondition_FF_TSL, 'OnAfterDeleteEvent', '', true, true)]
-    local procedure OnAfterDeleteFeatureFlagCondition(VAR Rec: Record FeatureFlagCondition_FF_TSL; RunTrigger: Boolean)
+    local procedure OnAfterDeleteFeatureFlagCondition(var Rec: Record FeatureFlagCondition_FF_TSL; RunTrigger: Boolean)
     begin
         if RunTrigger then
             RefreshApplicationArea(false)
     end;
 
-    procedure RecalculateCondition(Condition: Record Condition_FF_TSL temporary; remove: Boolean)
+    internal procedure RecalculateCondition(Condition: Record Condition_FF_TSL temporary; remove: Boolean)
     var
         Satisfied: Boolean;
     begin
@@ -148,17 +217,17 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
             Condition.TestField(Function);
             case Condition.Function of
                 UserFilterFunctionCodeLbl:
-                    Satisfied := MatchUserFilterFunction(Condition);
+                    Satisfied := MatchUserFilterFunction(Condition.Argument);
                 UserGroupFilterFunctionCodeLbl:
-                    Satisfied := MatchUserGroupFilterFunction(Condition);
+                    Satisfied := MatchUserGroupFilterFunction(Condition.Argument);
                 CompanyFilterFunctionCodeLbl:
-                    Satisfied := MatchCompanyFilterFunction(Condition);
+                    Satisfied := MatchCompanyFilterFunction(Condition.Argument);
                 else
-                    OnMatchCustomConditionEvent(Condition, Satisfied);
+                    OnMatchCustomConditionEvent(Condition.Function, Condition.Argument, Satisfied);
             end;
-            TempCalulatedCondition.Init();
-            TempCalulatedCondition.code := Condition.code;
-            if TempCalulatedCondition.Insert() then;
+            TempCalculatedCondition.Init();
+            TempCalculatedCondition.code := Condition.code;
+            if TempCalculatedCondition.Insert() then;
             if Satisfied then begin
                 TempSatisfiedCondition.Init();
                 TempSatisfiedCondition.code := Condition.code;
@@ -167,31 +236,31 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
                 if TempSatisfiedCondition.get(Condition.Code) then
                     TempSatisfiedCondition.Delete();
         end else begin
-            if TempCalulatedCondition.get(Condition.Code) then
-                TempCalulatedCondition.Delete();
+            if TempCalculatedCondition.get(Condition.Code) then
+                TempCalculatedCondition.Delete();
             if TempSatisfiedCondition.get(Condition.Code) then
                 TempSatisfiedCondition.Delete();
         end
     end;
 
-    local procedure MatchUserFilterFunction(Condition: Record Condition_FF_TSL temporary): Boolean
+    local procedure MatchUserFilterFunction(Argument: Text[2048]): Boolean
     var
         User: Record User;
     begin
-        if Condition.Argument <> '' then
-            User.SetView(Condition.Argument);
+        if Argument <> '' then
+            User.SetView(Argument);
         User.FilterGroup(2);
         User.SetRange("User Name", UserId());
         exit(not User.IsEmpty());
     end;
 
-    local procedure MatchUserGroupFilterFunction(Condition: Record Condition_FF_TSL temporary): Boolean
+    local procedure MatchUserGroupFilterFunction(Argument: Text[2048]): Boolean
     var
         UserGroup: Record "User Group";
         UserMemberWithGroup: Query UserMemberWithGroup_FF_TSL;
     begin
-        if Condition.Argument <> '' then begin
-            UserGroup.SetView(Condition.Argument);
+        if Argument <> '' then begin
+            UserGroup.SetView(Argument);
             UserMemberWithGroup.SetFilter(Code, UserGroup.GetFilter(Code));
             UserMemberWithGroup.SetFilter(Name, UserGroup.GetFilter(Name));
             UserMemberWithGroup.SetFilter(DefaultProfileID, UserGroup.GetFilter("Default Profile ID"));
@@ -206,19 +275,19 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
             exit(UserMemberWithGroup.Read())
     end;
 
-    local procedure MatchCompanyFilterFunction(Condition: Record Condition_FF_TSL temporary): Boolean
+    local procedure MatchCompanyFilterFunction(Argument: Text[2048]): Boolean
     var
         Company: Record Company;
     begin
-        if Condition.Argument <> '' then
-            Company.SetView(Condition.Argument);
+        if Argument <> '' then
+            Company.SetView(Argument);
         Company.FilterGroup(2);
         Company.SetRange(Name, CompanyName());
         exit(not Company.IsEmpty());
     end;
 
     [BusinessEvent(false)]
-    local procedure OnMatchCustomConditionEvent(Condition: Record Condition_FF_TSL temporary; var Satisfied: Boolean)
+    local procedure OnMatchCustomConditionEvent(Function: Code[10]; Argument: Text[2048]; var Satisfied: Boolean)
     begin
     end;
 
@@ -249,51 +318,6 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
             end
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::Condition_FF_TSL, 'OnAfterLookupArgumentEvent', '', true, true)]
-    local procedure OnAfterLookupArgument(VAR Rec: Record Condition_FF_TSL)
-    var
-        User: Record User;
-        UserGroup: Record "User Group";
-        Company: Record Company;
-        FilterPageBuilder: FilterPageBuilder;
-        ItemName: Text;
-    begin
-        if Rec.Function in [UserFilterFunctionCodeLbl, UserGroupFilterFunctionCodeLbl, CompanyFilterFunctionCodeLbl] then begin
-            case Rec.Function of
-                UserFilterFunctionCodeLbl:
-                    begin
-                        ItemName := StrSubstNo(FormatItemNameLbl, User.TableCaption());
-                        FilterPageBuilder.ADDTABLE(ItemName, DATABASE::User);
-                        FilterPageBuilder.AddFieldNo(ItemName, User.FieldNo("User Name"));
-                        FilterPageBuilder.AddFieldNo(ItemName, User.FieldNo("Full Name"));
-                        FilterPageBuilder.AddFieldNo(ItemName, User.FieldNo("Contact Email"));
-                        FilterPageBuilder.AddFieldNo(ItemName, User.FieldNo("License Type"));
-                    end;
-                UserGroupFilterFunctionCodeLbl:
-                    begin
-                        ItemName := StrSubstNo(FormatItemNameLbl, UserGroup.TableCaption());
-                        FilterPageBuilder.ADDTABLE(ItemName, DATABASE::"User Group");
-                        FilterPageBuilder.AddFieldNo(ItemName, UserGroup.FieldNo(Code));
-                        FilterPageBuilder.AddFieldNo(ItemName, UserGroup.FieldNo("Default Profile ID"));
-                    end;
-                CompanyFilterFunctionCodeLbl:
-                    begin
-                        ItemName := StrSubstNo(FormatItemNameLbl, Company.TableCaption());
-                        FilterPageBuilder.ADDTABLE(ItemName, DATABASE::Company);
-                        FilterPageBuilder.AddFieldNo(ItemName, Company.FieldNo(Name));
-                        FilterPageBuilder.AddFieldNo(ItemName, Company.FieldNo("Display Name"));
-                        FilterPageBuilder.AddFieldNo(ItemName, Company.FieldNo("Evaluation Company"));
-                    end;
-            end;
-            if rec.Argument <> '' then
-                FilterPageBuilder.SETVIEW(ItemName, rec.Argument);
-            if FilterPageBuilder.RunModal() then begin
-                rec.Argument := CopyStr(FilterPageBuilder.GetView(ItemName, false), 1, 2048);
-                // TODO: Extract only WHERE from view
-            end;
-        end;
-    end;
-
     procedure AddConditionToLibrary(Code: Code[20]; Function: Code[10]; Argument: Text[2048]): Boolean
     var
         Condition: Record Condition_FF_TSL;
@@ -310,7 +334,9 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
     begin
     end;
     //#endregion Condition
+
     //#region FeatureFlag
+
     procedure IsFeatureEnabled("Key": Text[30]): Boolean
     begin
         exit(StrPos(ApplicationArea(), '#' + "Key" + ',') <> 0)
@@ -342,7 +368,7 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
         end
     end;
 
-    procedure RefreshApplicationArea(RecalculateCondition: Boolean)
+    internal procedure RefreshApplicationArea(RecalculateCondition: Boolean)
     var
         TempCondition: Record Condition_FF_TSL temporary;
         ConditionsInUse: Query ConditionsInUse_FF_TSL;
@@ -404,17 +430,15 @@ codeunit 58537 "FeatureFlagMgt_FF_TSL"
         FeatureFlagCondition.ConditionCode := ConditionCode;
         exit(FeatureFlagCondition.Insert(true));
     end;
+
     //#endregion FeatureFlag
+
     var
         TempSatisfiedCondition: Record Condition_FF_TSL temporary;
-        TempCalulatedCondition: Record Condition_FF_TSL temporary;
+        TempCalculatedCondition: Record Condition_FF_TSL temporary;
         UserFilterFunctionCodeLbl: Label 'USERF';
-        UserFilterFuncitonDescLbl: Label 'User Filter';
         CompanyFilterFunctionCodeLbl: Label 'COMPANYF';
-        CompanyFilterFuncitonDescLbl: Label 'Company Filter';
         UserGroupFilterFunctionCodeLbl: Label 'USERGRPF';
-        UserGroupFilterFuncitonDescLbl: Label 'User Group Filter';
-        AllUsersConditionCodeLbl: Label 'ALL';
         FormatItemNameLbl: Label '%1 record', Comment = '%1 - Table Caption';
         FeatureFlagFunctionalityKeyLbl: Label '#FFTSL';
 }

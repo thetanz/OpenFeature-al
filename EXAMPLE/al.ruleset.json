@@ -1,0 +1,11 @@
+{
+    "name": "Extension RuleSet",
+    "description": "These rules must be respected by all the AL code written within current extension.",
+    "rules": [
+        {
+            "id": "AA0189",
+            "action": "Hidden",
+            "justification": "CodeCop Warning AA0189 is not applicable cases where user introduce a custom ApplicationArea."
+        }
+    ]
+}

@@ -50,10 +50,15 @@
         "cSpell.words": [
             "alpackages",
             "codeunit",
+            "Debuggable",
+            "endregion",
             "featureflags"
         ],
         "gitlens.codeLens.enabled": false,
-        "gitlens.statusBar.enabled": false
+        "gitlens.statusBar.enabled": false,
+        "cSpell.enableFiletypes": [
+            "al"
+        ]
     },
     "extensions": {
         "recommendations": [

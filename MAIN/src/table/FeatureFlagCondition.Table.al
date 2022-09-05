@@ -4,6 +4,7 @@ table 58538 "FeatureFlagCondition_FF_TSL"
     DataPerCompany = false;
     LookupPageId = FeatureFlagConditions_FF_TSL;
     Caption = 'Feature Flag Condition';
+    Access = Internal;
 
     fields
     {

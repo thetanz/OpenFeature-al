@@ -1,6 +1,7 @@
 query 58536 "ValidFeatureFlags_FF_TSL"
 {
     QueryType = Normal;
+    Access = Internal;
 
     elements
     {

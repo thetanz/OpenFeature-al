@@ -1,12 +1,14 @@
 query 58535 "ConditionsInUse_FF_TSL"
 {
     QueryType = Normal;
+    Access = Internal;
+
     elements
     {
         dataitem(Condition; Condition_FF_TSL)
         {
 
-            column(Code; Code)
+            column("Code"; Code)
             {
 
             }

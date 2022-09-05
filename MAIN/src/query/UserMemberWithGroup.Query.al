@@ -1,6 +1,7 @@
 query 58537 "UserMemberWithGroup_FF_TSL"
 {
     QueryType = Normal;
+    Access = Internal;
 
     elements
     {
@@ -18,7 +19,7 @@ query 58537 "UserMemberWithGroup_FF_TSL"
             {
                 DataItemLink = Code = UserGroupMember."User Group Code";
                 SqlJoinType = InnerJoin;
-                column(Code; Code)
+                column("Code"; Code)
                 {
 
                 }
