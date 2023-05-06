@@ -3,48 +3,49 @@ tag-template: 'v$RESOLVED_VERSION'
 categories:
   - title: 'Fixed'
     labels:
-      - 'fix'
-      - 'bug'
-      - 'patch'
+      - '📊 insights'
+      - '🐛 bug'
+      - '🌳 dependencies'
   - title: 'Added'
     labels:
-      - 'feature'
-      - 'enhancement'
+      - '✨ enhancement'
+      - '💡 ideas'
   - title: 'Changed'
     labels:
-      - 'change'
-      - 'chore'
+      - '🚀 major'
+      - '⚠️ invalid'
   - title: 'Security'
-    label: 'security'
+    label: '🔒 security'
 exclude-labels:
-  - 'skip-changelog'
-  - 'documentation'
+  - '🙈 skip-changelog'
+  - '📝 documentation'
+  - '📞 help wanted'
+  - '🤔 question'
+  - '😶 wontfix'
 change-template: '- $TITLE by @$AUTHOR (#$NUMBER)'
 change-title-escapes: '\<*_&'
 version-resolver:
   major:
     labels:
-      - 'major'
+      - '🚀 major'
   minor:
     labels:
-      - 'minor'
-      - 'feature'
-      - 'enhancement'
-      - 'change'
-      - 'chore'
+      - '✨ enhancement'
+      - '💡 ideas'
   patch:
     labels:
-      - 'fix'
-      - 'bugfix'
-      - 'bug'
-      - 'patch'
+      - '📊 insights'
+      - '🐛 bug'
+      - '🌳 dependencies'
+      - '⚠️ invalid'
+      - '🔒 security'
   default: patch
 version-template: '$MAJOR.$MINOR.$PATCH.0'
 autolabeler:
-  - label: 'chore'
+  - label: '🙈 skip-changelog'
     files:
       - '*.json'
-  - label: 'documentation'
+  - label: '📝 documentation'
     files:
       - '*.md'
 template: |
