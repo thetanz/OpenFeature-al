@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - release/PTE
+    paths:
+      - 'MAIN/**'
+      - 'EXAMPLE/**'
+      - 'TEST/**'
   pull_request:
     types: [opened, reopened, synchronize]
 
