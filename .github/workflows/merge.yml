@@ -1,8 +1,13 @@
 name: Merge PTE to AppSource
+
 on:
   push:
     branches:
       - 'release/PTE'
+
+permissions:
+  contents: write
+
 jobs:
   merge-branch:
     runs-on: ubuntu-latest
