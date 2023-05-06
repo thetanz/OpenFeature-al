@@ -22,8 +22,6 @@ exclude-labels:
   - '📞 help wanted'
   - '🤔 question'
   - '😶 wontfix'
-change-template: '- $TITLE by @$AUTHOR (#$NUMBER)'
-change-title-escapes: '\<*_&'
 version-resolver:
   major:
     labels:
@@ -47,11 +45,14 @@ autolabeler:
   - label: '📝 documentation'
     files:
       - '*.md'
+category-template: '### $CATEGORY'
+change-template: '- $TITLE (#$NUMBER)'
+change-title-escapes: '\<*_&'
 template: |
   $CHANGES
-  ## Deprecated
+  ### Deprecated
 
   - 
-  ## Removed
+  ### Removed
 
   - 
