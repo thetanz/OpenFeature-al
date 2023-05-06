@@ -5,20 +5,24 @@
   "version": "1.0.0.0",
   "brief": "Feature Flagging Example App",
   "description": "Feature Flagging Example App",
-  "privacyStatement": "https://www.theta.co.nz/contact-us/privacy-policy",
-  "EULA": "https://www.theta.co.nz/media/3805/terms-and-conditions-for-appsource-apps-for-business-central.pdf",
+  "privacyStatement": "https://www.theta.co.nz/privacy-policy",
+  "EULA": "https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RE5d5ga",
   "help": "https://www.theta.co.nz/contact-us",
   "url": "https://www.theta.co.nz/",
   "logo": "../logo.png",
   "propagateDependencies": true,
   "dependencies": [
-
+    {
+      "id": "c42f2379-d7b5-4378-8ce4-9bca293c6189",
+      "publisher": "Theta Systems Limited",
+      "name": "OpenFeature",
+      "version": "3.0.0.0"
+    }
   ],
-  "screenshots": [
-
-  ],
-  "platform": "20.0.0.0",
-  "application": "20.0.0.0",
+  "screenshots": [],
+  "target": "Cloud",
+  "platform": "22.0.0.0",
+  "application": "22.0.0.0",
   "idRanges": [
     {
       "from": 50100,
@@ -26,19 +30,16 @@
     }
   ],
   "contextSensitiveHelpUrl": "https://docs.microsoft.com/{0}/dynamics365/business-central",
-  "supportedLocales": [
-    "en-NZ",
-    "en-AU",
-    "en-US",
-    "en-GB"
-  ],
+  "supportedLocales": ["en-NZ", "en-AU", "en-US", "en-GB"],
   "resourceExposurePolicy": {
     "allowDebugging": false,
     "allowDownloadingSource": false,
     "includeSourceInSymbolFile": false
   },
-  "runtime": "9.0",
+  "runtime": "11.0",
   "features": [
-    "TranslationFile", "NoImplicitWith", "ExcludeGeneratedTranslations"
+    "TranslationFile",
+    "NoImplicitWith",
+    "ExcludeGeneratedTranslations"
   ]
 }

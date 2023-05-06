@@ -1,9 +1,8 @@
-<!-- LOGO -->
 <p align="center">
-     <img src="switch.png"
-         alt="Switch Image" />
+     <img src="https://www.svgrepo.com/download/391957/control-off-switch-toggle.svg" style="height: 6rem">
+     <img src="https://www.svgrepo.com/download/391961/control-on-switch-toggle.svg" style="height: 6rem">
 </p>
-<h2 align="center">FeatureFlags for AL</h2>
+<h2 align="center">OpenFeature for AL</h2>
 <p align="center">
      <a href="https://github.com/thetanz/featureflags-al/commits/master">
     <img src="https://img.shields.io/github/last-commit/thetanz/featureflags-al.svg?logo=github&logoColor=white"
@@ -24,14 +23,12 @@
 </p>
 
 ## Overview
-Ultimate project goal is to populate the Feature Flags approach among Dynamics 365 Business Central community by providing a workable tool to manage it.
+Our goal is to populate the feature flag driven development among Dynamics 365 Business Central community by providing a workable tool to manage it.
 ## Installation
 - **For development and on-prem installation:** clone this repository, compile and deploy an app
 - **For SaaS:** dependency reference will be provided shortly after the first AppSource release
 ## Usage
-Feature Flags extension allows the development team to manage feature flags, rules when they are enabled. When feature is indicated as enabled, the extension takes care of appending [ApplicationArea](https://docs.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-applicationarea-property) with an enabled feature code, so then it will be enabled for a current user session. 
-
-`It's not required to use Feature Flags extension as a dependency.`
+Feature Flags extension allows the development team to manage feature flags and rules when they are enabled. When the feature is indicated as enabled, the extension takes care of appending [ApplicationArea](https://docs.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-applicationarea-property) with an enabled feature identifier, so then it will be enabled for a current user session. 
 ### ApplicationArea for Pages
 Developer should define ApplicationArea to be equal to a Feature Code to all feature-related page controls and actions:
 ```javascript
