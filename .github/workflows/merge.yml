@@ -1,0 +1,16 @@
+name: Merge PTE to AppSource
+on:
+  push:
+    branches:
+      - 'release/PTE'
+jobs:
+  merge-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Merge PTE -> AppSource
+        uses: devmasx/merge-branch@master
+        with:
+          type: now
+          target_branch: release/AppSource
+          github_token: ${{ secrets.GITHUB_TOKEN }}
