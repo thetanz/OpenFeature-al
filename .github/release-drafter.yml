@@ -1,0 +1,47 @@
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+categories:
+  - title: 'Fixed'
+    labels:
+      - 'fix'
+      - 'bugfix'
+      - 'bug'
+      - 'patch'
+  - title: 'Added'
+    labels:
+      - 'feature'
+      - 'enhancement'
+  - title: 'Changed'
+    labels:
+      - 'change'
+      - 'chore'
+  - title: 'Security'
+    label: 'security'
+change-template: '- $TITLE by @$AUTHOR (#$NUMBER)'
+change-title-escapes: '\<*_&'
+version-resolver:
+  major:
+    labels:
+      - 'major'
+  minor:
+    labels:
+      - 'minor'
+      - 'feature'
+      - 'enhancement'
+      - 'change'
+      - 'chore'
+  patch:
+    labels:
+      - 'fix'
+      - 'bugfix'
+      - 'bug'
+      - 'patch'
+  default: patch
+template: |
+  $CHANGES
+  ### Deprecated
+  <!---for soon-to-be removed features--->
+  - 
+  ### Removed
+  <!---for now removed features--->
+  - 
