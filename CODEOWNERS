@@ -1,0 +1,6 @@
+# for a functional example on how to use codeowners, see the below
+# https://github.com/thetanz/codeowners/blob/main/CODEOWNERS
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+*                        @thetanz/dynamics-365
+*.al                     @vody
+*.md                     @vody

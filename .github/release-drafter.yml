@@ -1,47 +1,59 @@
-name-template: 'v$RESOLVED_VERSION'
-tag-template: 'v$RESOLVED_VERSION'
+name-template: 'v$RESOLVED_VERSION.0'
+tag-template: 'v$RESOLVED_VERSION.0'
+tag-prefix: 'v'
 categories:
   - title: 'Fixed'
     labels:
-      - 'fix'
-      - 'bugfix'
-      - 'bug'
-      - 'patch'
+      - '📊 insights'
+      - '🐛 bug'
+      - '🌳 dependencies'
   - title: 'Added'
     labels:
-      - 'feature'
-      - 'enhancement'
+      - '✨ enhancement'
+      - '💡 ideas'
   - title: 'Changed'
     labels:
-      - 'change'
-      - 'chore'
+      - '🚀 major'
+      - '⚠️ invalid'
   - title: 'Security'
-    label: 'security'
-change-template: '- $TITLE by @$AUTHOR (#$NUMBER)'
-change-title-escapes: '\<*_&'
+    label: '🔒 security'
+exclude-labels:
+  - '🙈 skip-changelog'
+  - '📝 documentation'
+  - '📞 help wanted'
+  - '🤔 question'
+  - '😶 wontfix'
 version-resolver:
   major:
     labels:
-      - 'major'
+      - '🚀 major'
   minor:
     labels:
-      - 'minor'
-      - 'feature'
-      - 'enhancement'
-      - 'change'
-      - 'chore'
+      - '✨ enhancement'
+      - '💡 ideas'
   patch:
     labels:
-      - 'fix'
-      - 'bugfix'
-      - 'bug'
-      - 'patch'
+      - '📊 insights'
+      - '🐛 bug'
+      - '🌳 dependencies'
+      - '⚠️ invalid'
+      - '🔒 security'
   default: patch
+autolabeler:
+  - label: '🙈 skip-changelog'
+    files:
+      - '*.json'
+  - label: '📝 documentation'
+    files:
+      - '*.md'
+category-template: '### $TITLE'
+change-template: '- $TITLE ([#$NUMBER]($URL))'
+change-title-escapes: '\<*_&'
 template: |
   $CHANGES
   ### Deprecated
-  <!---for soon-to-be removed features--->
-  - 
+
+  -
   ### Removed
-  <!---for now removed features--->
-  - 
+
+  -
