@@ -46,7 +46,7 @@ autolabeler:
     files:
       - '*.md'
 category-template: '### $TITLE'
-change-template: '- $TITLE (#$NUMBER)'
+change-template: '- $TITLE ([#$NUMBER]($URL))'
 change-title-escapes: '\<*_&'
 template: |
   $CHANGES
