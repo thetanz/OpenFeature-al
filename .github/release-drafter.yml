@@ -1,5 +1,5 @@
-name-template: 'v$RESOLVED_VERSION'
-tag-template: 'v$RESOLVED_VERSION'
+name-template: 'v$RESOLVED_VERSION.0'
+tag-template: 'v$RESOLVED_VERSION.0'
 tag-prefix: 'v'
 categories:
   - title: 'Fixed'
@@ -23,7 +23,6 @@ exclude-labels:
   - '📞 help wanted'
   - '🤔 question'
   - '😶 wontfix'
-version-template: '$MAJOR.$MINOR.$PATCH.0'
 version-resolver:
   major:
     labels:
