@@ -1,5 +1,5 @@
-name-template: 'v$RESOLVED_VERSION'
-tag-template: 'v$RESOLVED_VERSION'
+name-template: 'v$RESOLVED_VERSION.0'
+tag-template: 'v$RESOLVED_VERSION.0'
 categories:
   - title: 'Fixed'
     labels:
@@ -40,7 +40,6 @@ version-resolver:
       - '⚠️ invalid'
       - '🔒 security'
   default: patch
-version-template: '$MAJOR.$MINOR.$PATCH.0'
 autolabeler:
   - label: '🙈 skip-changelog'
     files:
@@ -50,9 +49,9 @@ autolabeler:
       - '*.md'
 template: |
   $CHANGES
-  ### Deprecated
-  <!---for soon-to-be removed features--->
+  ## Deprecated
+
   - 
-  ### Removed
-  <!---for now removed features--->
+  ## Removed
+
   - 
