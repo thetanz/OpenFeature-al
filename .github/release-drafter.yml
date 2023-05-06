@@ -47,10 +47,6 @@ autolabeler:
   - label: 'documentation'
     files:
       - '*.md'
-include-paths:
-  - 'EXAMPLE/**'
-  - 'MAIN/**'
-  - 'TEST/**'
 template: |
   $CHANGES
   ### Deprecated
