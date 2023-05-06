@@ -13,7 +13,7 @@
         "al.enableCodeAnalysis": true,
         "al.codeAnalyzers": [
             "${CodeCop}",
-            "${PerTenantExtensionCop}"
+            "${AppSourceCop}"
         ],
         "al.assemblyProbingPaths": [
             "./.netpackages",

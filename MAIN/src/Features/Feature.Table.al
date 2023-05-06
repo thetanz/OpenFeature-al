@@ -1,4 +1,4 @@
-table 58535 "Feature_FF_TSL"
+table 70254345 "Feature_FF_TSL"
 {
     Access = Internal;
     DataClassification = SystemMetadata;

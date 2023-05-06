@@ -1,4 +1,4 @@
-enum 58535 "ConditionFunction_FF_TSL" implements "IConditionFunction_FF_TSL"
+enum 70254345 "ConditionFunction_FF_TSL" implements "IConditionFunction_FF_TSL"
 {
     Access = Public;
     Extensible = true;

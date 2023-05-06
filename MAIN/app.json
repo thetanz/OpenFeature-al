@@ -18,12 +18,8 @@
   "application": "22.0.0.0",
   "idRanges": [
     {
-      "from": 58535,
-      "to": 58539
-    },
-    {
-      "from": 58650,
-      "to": 58654
+      "from": 70254345,
+      "to": 70254359
     }
   ],
   "contextSensitiveHelpUrl": "http://featureflags.io/feature-flags/",

@@ -1,4 +1,4 @@
-table 58538 "FeatureCondition_FF_TSL"
+table 70254348 "FeatureCondition_FF_TSL"
 {
     Access = Internal;
     DataClassification = CustomerContent;

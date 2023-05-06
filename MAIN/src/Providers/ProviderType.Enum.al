@@ -1,4 +1,4 @@
-enum 58536 "ProviderType_FF_TSL" implements IProvider_FF_TSL
+enum 70254346 "ProviderType_FF_TSL" implements IProvider_FF_TSL
 {
     Access = Public;
     Extensible = true;

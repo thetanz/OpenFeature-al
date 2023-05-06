@@ -1,4 +1,4 @@
-codeunit 58536 "Upgrade_FF_TSL"
+codeunit 70254346 "Upgrade_FF_TSL"
 {
     Access = Internal;
     Subtype = Upgrade;

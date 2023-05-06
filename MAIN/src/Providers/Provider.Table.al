@@ -1,4 +1,4 @@
-table 58536 "Provider_FF_TSL"
+table 70254346 "Provider_FF_TSL"
 {
     Access = Internal;
     DataClassification = SystemMetadata;

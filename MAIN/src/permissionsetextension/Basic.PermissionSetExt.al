@@ -1,4 +1,4 @@
-permissionsetextension 58535 "Basic_FF_TSL" extends "System App - Basic"
+permissionsetextension 70254345 "Basic_FF_TSL" extends "System App - Basic"
 {
     Permissions =
         codeunit FeatureMgt_FF_TSL = X,
