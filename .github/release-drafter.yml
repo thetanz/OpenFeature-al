@@ -1,5 +1,5 @@
-name-template: 'v$RESOLVED_VERSION.0'
-tag-template: 'v$RESOLVED_VERSION.0'
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
 categories:
   - title: 'Fixed'
     labels:
