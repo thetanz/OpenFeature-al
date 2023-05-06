@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - release/PTE
-      - release/AppSource
   pull_request:
     types: [opened, reopened, synchronize]
 
