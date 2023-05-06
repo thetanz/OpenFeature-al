@@ -4,7 +4,6 @@ categories:
   - title: 'Fixed'
     labels:
       - 'fix'
-      - 'bugfix'
       - 'bug'
       - 'patch'
   - title: 'Added'
@@ -17,6 +16,9 @@ categories:
       - 'chore'
   - title: 'Security'
     label: 'security'
+exclude-labels:
+  - 'skip-changelog'
+  - 'documentation'
 change-template: '- $TITLE by @$AUTHOR (#$NUMBER)'
 change-title-escapes: '\<*_&'
 version-resolver:
@@ -37,6 +39,18 @@ version-resolver:
       - 'bug'
       - 'patch'
   default: patch
+version-template: '$MAJOR.$MINOR.$PATCH.0'
+autolabeler:
+  - label: 'chore'
+    files:
+      - '*.json'
+  - label: 'documentation'
+    files:
+      - '*.md'
+include-paths:
+  - 'EXAMPLE/**'
+  - 'MAIN/**'
+  - 'TEST/**'
 template: |
   $CHANGES
   ### Deprecated
