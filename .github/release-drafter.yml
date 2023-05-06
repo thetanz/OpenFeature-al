@@ -45,7 +45,7 @@ autolabeler:
   - label: '📝 documentation'
     files:
       - '*.md'
-category-template: '### $CATEGORY'
+category-template: '### $TITLE'
 change-template: '- $TITLE (#$NUMBER)'
 change-title-escapes: '\<*_&'
 template: |
