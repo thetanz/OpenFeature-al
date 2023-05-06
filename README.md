@@ -4,20 +4,20 @@
 </p>
 <h2 align="center">OpenFeature for AL</h2>
 <p align="center">
-     <a href="https://github.com/thetanz/featureflags-al/commits/master">
-    <img src="https://img.shields.io/github/last-commit/thetanz/featureflags-al.svg?logo=github&logoColor=white"
+     <a href="https://github.com/thetanz/OpenFeature-al/commits/master">
+    <img src="https://img.shields.io/github/last-commit/thetanz/OpenFeature-al.svg?logo=github&logoColor=white"
          alt="GitHub last commit" />
     </a>
-    <a href="https://github.com/thetanz/featureflags-al/issues">
-    <img src="https://img.shields.io/github/issues-raw/thetanz/featureflags-al.svg?logo=github&logoColor=white"
+    <a href="https://github.com/thetanz/OpenFeature-al/issues">
+    <img src="https://img.shields.io/github/issues-raw/thetanz/OpenFeature-al.svg?logo=github&logoColor=white"
          alt="GitHub issues" />
     </a>
-    <a href="https://github.com/thetanz/featureflags-al/pulls">
-    <img src="https://img.shields.io/github/issues-pr-raw/thetanz/featureflags-al.svg?logo=github&logoColor=white"
+    <a href="https://github.com/thetanz/OpenFeature-al/pulls">
+    <img src="https://img.shields.io/github/issues-pr-raw/thetanz/OpenFeature-al.svg?logo=github&logoColor=white"
          alt="GitHub pull requests" />
     </a>
-    <a href="https://twitter.com/intent/tweet?text=Try Feature Flags for AL:&url=https%3A%2F%2Fgithub.com%2Fthetanz%2Ffeatureflags-al">
-    <img src="https://img.shields.io/twitter/url/https/github.com/thetanz/featureflags-al.svg?logo=twitter"
+    <a href="https://twitter.com/intent/tweet?text=Try Feature Flags for AL:&url=https%3A%2F%2Fgithub.com%2Fthetanz%2FOpenFeature-al">
+    <img src="https://img.shields.io/twitter/url/https/github.com/thetanz/OpenFeature-al.svg?logo=twitter"
          alt="GitHub tweet" />
     </a>
 </p>
@@ -49,7 +49,7 @@ if StrPos(ApplicationArea(), '#<FEATURE>,') <> 0 then begin
 end;
 ```
 ## Roadmap
-See the [open issues](https://github.com/thetanz/featureflags-al/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/thetanz/OpenFeature-al/issues) for a list of proposed features (and known issues).
 ## Contributing
 Contributions make the open-source community a fantastic place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 1. Fork the Project
@@ -61,4 +61,4 @@ Contributions make the open-source community a fantastic place to learn, inspire
 It is distributed under GNU v3.0. See [`LICENSE`](LICENSE) for more information.
 ## Contact
 - Owner: [@vodyl](https://twitter.com/vodyl)
-- Link: [https://github.com/thetanz/featureflags-al](https://github.com/thetanz/featureflags-al)
+- Link: [https://github.com/thetanz/OpenFeature-al](https://github.com/thetanz/OpenFeature-al)
