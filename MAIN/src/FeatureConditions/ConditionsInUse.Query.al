@@ -2,6 +2,7 @@ query 70254345 "ConditionsInUse_FF_TSL"
 {
     Access = Internal;
     QueryType = Normal;
+    ReadState = ReadUncommitted;
     Permissions =
         tabledata Condition_FF_TSL = R,
         tabledata FeatureCondition_FF_TSL = R;

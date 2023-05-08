@@ -7,111 +7,106 @@ codeunit 70254351 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
         tabledata FeatureCondition_FF_TSL = RID;
 
     var
+        FeatureMgt: Codeunit FeatureMgt_FF_TSL;
         CalculatedConditions: List of [Guid];
         ActiveConditions: List of [Guid];
         ConditionProviderCodeTxt: Label 'CONDITIONS', Locked = true;
 
     #region Library
 
-    procedure AddFeature(FeatureID: Text[50]; Description: Text[100]): Boolean
-    var
-        FeatureMgt: Codeunit FeatureMgt_FF_TSL;
+    procedure AddFeature(FeatureID: Code[50]; Description: Text[2048]): Boolean
     begin
         exit(FeatureMgt.AddFeature(FeatureID, Description, ConditionProviderCodeTxt))
     end;
 
-    procedure AddCondition(Code: Code[20]; Function: Enum ConditionFunction_FF_TSL; Argument: Text[2048]): Boolean
+    procedure AddCondition(Code: Code[50]; Function: Enum ConditionFunction_FF_TSL; Argument: Text) Result: Boolean
     var
         Condition: Record Condition_FF_TSL;
     begin
-        Condition.Init();
-        Condition.Code := Code;
-        Condition.Function := Function;
-        Condition.Argument := Argument;
-        exit(Condition.Insert(true))
+        if not Condition.Get(Code) then begin
+            Condition.Init();
+            Condition.Code := Code;
+            Condition.Function := Function;
+            exit(Condition.Insert(not Condition.ValidateArgument(Argument)));
+        end
     end;
 
-    procedure AddFeatureCondition(FeatureID: Text[50]; ConditionCode: Code[20]): Boolean
+    procedure AddFeatureCondition(FeatureID: Code[50]; ConditionCode: Code[50]) Result: Boolean
     var
         FeatureCondition: Record FeatureCondition_FF_TSL;
     begin
         FeatureCondition.Init();
         FeatureCondition.FeatureID := FeatureID;
         FeatureCondition.ConditionCode := ConditionCode;
-        exit(FeatureCondition.Insert(true));
+        Result := FeatureCondition.Insert(true);
+        if not Result then
+            exit(FeatureCondition.Modify(true))
     end;
 
     internal procedure AddProvider()
-    var
-        FeatureMgt: Codeunit FeatureMgt_FF_TSL;
     begin
         FeatureMgt.AddProvider(ConditionProviderCodeTxt, "ProviderType_FF_TSL"::Condition);
-        AddAllUsersCondition();
+        AddEveryoneCondition();
     end;
 
-    internal procedure AddAllUsersCondition() ConditionCode: Code[20]
+    internal procedure AddEveryoneCondition() ConditionCode: Code[50]
     var
-        AllUsersConditionCodeLbl: Label 'ALL', Locked = true;
+        AllUsersConditionCodeLbl: Label 'EVERYONE', Locked = true;
     begin
         ConditionCode := AllUsersConditionCodeLbl;
-        AddCondition(CopyStr(ConditionCode, 1, 20), "ConditionFunction_FF_TSL"::UserFilter, '')
+        AddCondition(CopyStr(ConditionCode, 1, MaxStrLen(ConditionCode)), "ConditionFunction_FF_TSL"::UserFilter, '')
     end;
 
-    local procedure AddCurrentUserCondition() ConditionCode: Code[20]
+    local procedure AddCurrentUserCondition() ConditionCode: Code[50]
     var
         User: Record User;
     begin
-        ConditionCode := CopyStr(UserId(), 1, 20);
+        ConditionCode := CopyStr(UserId(), 1, MaxStrLen(ConditionCode));
         User.SetRange("User Name", UserId());
-        AddCondition(CopyStr(ConditionCode, 1, 20), "ConditionFunction_FF_TSL"::UserFilter, CopyStr(User.GetView(), 1, 2048))
+        AddCondition(CopyStr(ConditionCode, 1, MaxStrLen(ConditionCode)), "ConditionFunction_FF_TSL"::UserFilter, CopyStr(User.GetView(), 1, 2048))
     end;
 
     #endregion
 
     #region IProvider
 
+    [NonDebuggable]
     internal procedure Refresh(ConnectionInfo: JsonObject)
     begin
         ClearAll();
     end;
 
-    internal procedure IsStateEditable(ConnectionInfo: JsonObject): Boolean
-    begin
-        exit(true)
-    end;
-
-    internal procedure SetState(ConnectionInfo: JsonObject; FeatureID: Text[50]; Enabled: Boolean)
+    [NonDebuggable]
+    internal procedure DrillDownState(ConnectionInfo: JsonObject; FeatureID: Code[50])
     var
         FeatureCondition: Record FeatureCondition_FF_TSL;
-        FeatureMgt: Codeunit FeatureMgt_FF_TSL;
         KillSwitchQst: Label 'You are turning off the targeting rules for that feature and serving the off variation. Please confirm to proceed.';
         StrmenuInstructionLbl: Label 'Enable feature for:';
         StrmenuOptionLbl: Label '%1,Everyone', Comment = '%1 = User ID';
         StrmenuResult: Integer;
     begin
-        if Enabled then begin
+        if not FeatureMgt.IsEnabled(FeatureID) then begin
             StrmenuResult := StrMenu(StrSubstNo(StrmenuOptionLbl, UserId()), 0, StrmenuInstructionLbl);
             if StrmenuResult > 0 then begin
                 FeatureCondition.SetRange(FeatureID, FeatureID);
                 FeatureCondition.DeleteAll();
-                case StrMenu(StrSubstNo(StrmenuOptionLbl, UserId()), 0, StrmenuInstructionLbl) of
+                case StrmenuResult of
                     1:
                         AddFeatureCondition(FeatureID, AddCurrentUserCondition());
                     2:
-                        AddFeatureCondition(FeatureID, AddAllUsersCondition());
+                        AddFeatureCondition(FeatureID, AddEveryoneCondition());
                 end;
-            end else
-                Error('');
+            end
         end else
             if Confirm(KillSwitchQst) then begin
                 FeatureCondition.SetRange(FeatureID, FeatureID);
                 FeatureCondition.DeleteAll();
                 FeatureMgt.RefreshApplicationArea(false);
-            end else
-                Error('');
+            end
     end;
 
-    internal procedure GetEnabled(ConnectionInfo: JsonObject) Enabled: List of [Text[50]]
+    [NonDebuggable]
+    internal procedure GetEnabled(ConnectionInfo: JsonObject) FeatureIDs: List of [Code[50]]
     var
         ConditionsInUse: Query ConditionsInUse_FF_TSL;
         ValidFeatures: Query ValidFeatures_FF_TSL;
@@ -133,10 +128,11 @@ codeunit 70254351 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
         end;
         if ValidFeatures.Open() then
             while ValidFeatures.Read() do
-                Enabled.Add(ValidFeatures.FeatureID)
+                FeatureIDs.Add(ValidFeatures.FeatureID);
     end;
 
-    procedure GetAll(ConnectionInfo: JsonObject): Dictionary of [Text[50], Text[100]]
+    [NonDebuggable]
+    procedure GetAll(ConnectionInfo: JsonObject): Dictionary of [Code[50], Text[2048]]
     begin
 
     end;
@@ -234,36 +230,35 @@ codeunit 70254351 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
             RefreshApplicationArea(false)
         end;
     end;
+    */
 
     [EventSubscriber(ObjectType::Table, Database::FeatureCondition_FF_TSL, 'OnAfterInsertEvent', '', true, true)]
     local procedure OnAfterInsertFeatureCondition(var Rec: Record FeatureCondition_FF_TSL; RunTrigger: Boolean)
     begin
         if RunTrigger then
-            RefreshApplicationArea(false)
+            FeatureMgt.RefreshApplicationArea(false)
     end;
 
     [EventSubscriber(ObjectType::Table, Database::FeatureCondition_FF_TSL, 'OnAfterModifyEvent', '', true, true)]
     local procedure OnAfterModifyFeatureCondition(var Rec: Record FeatureCondition_FF_TSL; var xRec: Record FeatureCondition_FF_TSL; RunTrigger: Boolean)
     begin
         if RunTrigger then
-            RefreshApplicationArea(false)
+            FeatureMgt.RefreshApplicationArea(false)
     end;
 
     [EventSubscriber(ObjectType::Table, Database::FeatureCondition_FF_TSL, 'OnAfterRenameEvent', '', true, true)]
     local procedure OnAfterRenameFeatureCondition(var Rec: Record FeatureCondition_FF_TSL; var xRec: Record FeatureCondition_FF_TSL; RunTrigger: Boolean)
     begin
         if RunTrigger then
-            RefreshApplicationArea(false)
+            FeatureMgt.RefreshApplicationArea(false)
     end;
 
     [EventSubscriber(ObjectType::Table, Database::FeatureCondition_FF_TSL, 'OnAfterDeleteEvent', '', true, true)]
     local procedure OnAfterDeleteFeatureCondition(var Rec: Record FeatureCondition_FF_TSL; RunTrigger: Boolean)
     begin
         if RunTrigger then
-            RefreshApplicationArea(false)
+            FeatureMgt.RefreshApplicationArea(false)
     end;
-
-    */
 
     #endregion
 }

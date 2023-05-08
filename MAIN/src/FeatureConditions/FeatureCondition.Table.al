@@ -8,7 +8,7 @@ table 70254348 "FeatureCondition_FF_TSL"
 
     fields
     {
-        field(1; FeatureID; Text[50])
+        field(1; FeatureID; Code[50])
         {
             Caption = 'Feature Flag Key';
             DataClassification = CustomerContent;
@@ -16,14 +16,14 @@ table 70254348 "FeatureCondition_FF_TSL"
             TableRelation = Feature_FF_TSL;
             ValidateTableRelation = false;
         }
-        field(2; ConditionCode; Code[20])
+        field(2; ConditionCode; Code[50])
         {
             Caption = 'Condition Code';
             DataClassification = CustomerContent;
             NotBlank = true;
             TableRelation = Condition_FF_TSL;
         }
-        field(3; ConditionCodeFilter; Code[20])
+        field(3; ConditionCodeFilter; Code[50])
         {
             Caption = 'Condition Code Filter';
             FieldClass = FlowFilter;
@@ -37,27 +37,4 @@ table 70254348 "FeatureCondition_FF_TSL"
             Clustered = true;
         }
     }
-
-    var
-        FeatureMgt: Codeunit FeatureMgt_FF_TSL;
-
-    trigger OnInsert()
-    begin
-        FeatureMgt.RefreshApplicationArea(false);
-    end;
-
-    trigger OnModify()
-    begin
-        FeatureMgt.RefreshApplicationArea(false);
-    end;
-
-    trigger OnRename()
-    begin
-        FeatureMgt.RefreshApplicationArea(false);
-    end;
-
-    trigger OnDelete()
-    begin
-        FeatureMgt.RefreshApplicationArea(false);
-    end;
 }

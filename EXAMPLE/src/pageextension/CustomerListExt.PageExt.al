@@ -8,7 +8,7 @@ pageextension 50100 "CustomerListExt_FF_TSL" extends "Customer List"
             field(StripeID_FF_TSL; Rec.StripeID_FF_TSL)
             {
                 Caption = 'Stripe ID';
-                ToolTip = 'Customer Stripe ID';
+                ToolTip = 'Customer''s Stripe ID';
                 ApplicationArea = Stripe;
             }
         }

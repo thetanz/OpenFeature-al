@@ -26,19 +26,25 @@ page 70254345 "Features_FF_TSL"
                 {
                     ToolTip = 'Meaningful human-readable description of the feature.';
                     Editable = false;
-                }
-                field(Enabled; "FeatureEnabled")
-                {
-                    Caption = 'Enabled';
-                    Editable = FeatureStateEditable;
-                    ToolTip = 'Identifies current feature state, but can be used as a kill switch to turn off a feature that is misbehaving without needing to touch any code or re-deploy your application.';
 
-                    trigger OnValidate()
+                    trigger OnDrillDown()
                     begin
-                        if FeatureEnabled <> FeatureMgt.IsEnabled(Rec.ID) then begin
-                            IProvider := Rec.GetProvider().Type;
-                            IProvider.SetState(Rec.GetProvider().ConnectionInfo(), Rec.ID, FeatureEnabled);
-                        end
+                        if Rec."Learn More Url" <> '' then
+                            Hyperlink(Rec."Learn More Url");
+                    end;
+                }
+                field(State; FeatureState)
+                {
+                    Caption = 'State';
+                    ToolTip = 'Identifies current feature state, but can be used as a kill switch to turn off a feature that is misbehaving without needing to touch any code or re-deploy your application.';
+                    Editable = false;
+                    StyleExpr = FeatureStateStyle;
+
+                    trigger OnDrillDown()
+                    begin
+                        IProvider := Rec.GetProvider().Type;
+                        IProvider.DrillDownState(Rec.GetProvider().ConnectionInfo(), Rec.ID);
+                        CurrPage.Update()
                     end;
                 }
                 field(Provider; Rec."Provider Code")
@@ -82,8 +88,8 @@ page 70254345 "Features_FF_TSL"
     var
         FeatureMgt: Codeunit FeatureMgt_FF_TSL;
         IProvider: Interface IProvider_FF_TSL;
-        FeatureEnabled: Boolean;
-        FeatureStateEditable: Boolean;
+        FeatureState: Enum "Feature Status";
+        FeatureStateStyle: Text;
         IsConditionProvider: Boolean;
 
     trigger OnOpenPage()
@@ -95,12 +101,33 @@ page 70254345 "Features_FF_TSL"
     begin
         IsConditionProvider := Rec.GetProvider().Type = ProviderType_FF_TSL::Condition;
         IProvider := Rec.GetProvider().Type;
-        FeatureStateEditable := IProvider.IsStateEditable(Rec.GetProvider().ConnectionInfo());
-        FeatureEnabled := FeatureMgt.IsEnabled(Rec.ID)
+        if FeatureMgt.IsEnabled(Rec.ID) then
+            FeatureState := "Feature Status"::Enabled
+        else
+            FeatureState := "Feature Status"::Disabled;
+        UpdateStyle()
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        FeatureEnabled := false
+        FeatureState := "Feature Status"::Disabled
+    end;
+
+    local procedure UpdateStyle()
+    begin
+        case FeatureState of
+            "Feature Status"::Enabled,
+            "Feature Status"::Complete:
+                FeatureStateStyle := 'Favorable';
+            "Feature Status"::Pending:
+                FeatureStateStyle := 'Unfavorable';
+            "Feature Status"::Scheduled,
+            "Feature Status"::Updating:
+                FeatureStateStyle := 'StrongAccent';
+            "Feature Status"::Incomplete:
+                FeatureStateStyle := 'Unfavorable';
+            "Feature Status"::Disabled:
+                FeatureStateStyle := 'Subordinate';
+        end;
     end;
 }

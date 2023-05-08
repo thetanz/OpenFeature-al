@@ -4,6 +4,11 @@ codeunit 50100 "InstallExample_FF_TSL"
     Permissions =
         tabledata User = R;
 
+    var
+        ConditionProvider: Codeunit ConditionProvider_FF_TSL;
+        HarnessProvider: Codeunit HarnessProvider_FF_TSL;
+        ISecretProvider: Interface "Secret Provider";
+
     trigger OnInstallAppPerDatabase()
     var
         AppInfo: ModuleInfo;
@@ -14,39 +19,43 @@ codeunit 50100 "InstallExample_FF_TSL"
     end;
 
     local procedure HandleFreshInstallPerDatabase();
-    var
-        User: Record User;
-        ConditionProvider: Codeunit ConditionProvider_FF_TSL;
-        HarnessProvider: Codeunit HarnessProvider_FF_TSL;
     begin
         // Provider: Conditions
-        // Add new feature without conditions. Admin user should ename it manually.
-        ConditionProvider.AddFeature('Stripe', 'Enable users to define customer''s Stripe ID');
-
-        // Add new feature with condition to be enabled only for users with email ending with '.nz'.
-        ConditionProvider.AddFeature('KiaOra', 'Enable user to send welcome email to New Zealand customer');
-        User.SetFilter("Contact Email", '*.nz');
-        ConditionProvider.AddCondition('NZUSER', ConditionFunction_FF_TSL::UserFilter, CopyStr(User.GetView(), 1, 2048));
-        ConditionProvider.AddFeatureCondition('KiaOra', 'NZUSER');
+        AddStripeFeatureWithConditionProvider();
+        AddKiaOraFeatureWithConditionProvider();
 
         // Provider: Harness
-        HarnessProvider.AddProvider(
-            'THETA_HARNESS',
-            GetSecret('AccountID'),
-            GetSecret('APIKey'),
-            GetSecret('ProjectID')
-        )
+        AddHarnessProvider();
     end;
 
-    local procedure GetSecret(SecretName: Text) SecretValue: Text[100]
-    var
-        InMemorySecretProvider: Codeunit "In Memory Secret Provider";
-        SecretProvider: Interface "Secret Provider";
+    local procedure AddStripeFeatureWithConditionProvider()
     begin
-        InMemorySecretProvider.AddSecret('AccountID', '');
-        InMemorySecretProvider.AddSecret('APIKey', '');
-        InMemorySecretProvider.AddSecret('ProjectID', 'default_project');
-        SecretProvider := InMemorySecretProvider;
-        SecretProvider.GetSecret(SecretName, SecretValue);
+        // Add new feature without conditions. Admin user should enable it manually.
+        ConditionProvider.AddFeature('STRIPE', 'Enable users to define customer''s Stripe ID');
+    end;
+
+    local procedure AddKiaOraFeatureWithConditionProvider()
+    var
+        User: Record User;
+    begin
+        // Add new feature with condition to be enabled only for users with email ending with '.nz'.
+        ConditionProvider.AddFeature('KIAORA', '[Enable user to send welcome email to New Zealand customer](https://feedback.365extensions.com/bc/p/unable-to-delete-company)');
+        User.SetFilter("Contact Email", '*.nz');
+        ConditionProvider.AddCondition('NZUSER', ConditionFunction_FF_TSL::UserFilter, User.GetView());
+        ConditionProvider.AddFeatureCondition('KIAORA', 'NZUSER');
+    end;
+
+    local procedure AddHarnessProvider()
+    var
+        SecretProvider: Codeunit HandcodeSecretProvider_FF_TSL;
+        AccountID, APIKey, ProjectID : Text;
+    begin
+        // App Harness provider. It will load all available features automatically.
+        ISecretProvider := SecretProvider;
+        ISecretProvider.GetSecret('AccountID', AccountID);
+        ISecretProvider.GetSecret('APIKey', APIKey);
+        ProjectID := 'default_project';
+        if not HarnessProvider.AddProvider('THETA_HARNESS', AccountID, APIKey, ProjectID, HarnessEnvironmentMatch_FF_TSL::EnvironmentType) then
+            Error(GetLastErrorText());
     end;
 }

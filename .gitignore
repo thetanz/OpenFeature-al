@@ -283,3 +283,6 @@ __pycache__/
 # Cloudflare Workers
 */dist/worker.js
 */worker/script.js
+
+# Project
+EXAMPLE/src/HandcodeSecretProvider.Codeunit.al

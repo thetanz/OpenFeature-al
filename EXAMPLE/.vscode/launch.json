@@ -12,7 +12,9 @@
             "breakOnError": true,
             "enableLongRunningSqlStatements": true,
             "enableSqlInformationDebugger": true,
-            "tenant": "default"
+            "tenant": "default",
+            "startupObjectType": "Page",
+            "startupObjectId": 22
         }
     ]
 }
