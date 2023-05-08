@@ -27,7 +27,7 @@ OpenFeature for AL is created to populate the feature flag-driven development am
 ## Installation
 ### 1. Deploy OpenFeature extension to your environment
 - **For On-Prem and local development**: Clone PTE release `git clone -b release/PTE https://github.com/thetanz/OpenFeature-al.git`, package extension from `MAIN` folder and deploy to your On-Prem environment.
-- **For SaaS**: Follow [link to install OpenFeature extension]() into your Cloud environment.
+- **For SaaS**: Follow the [link to install OpenFeature extension](https://businesscentral.dynamics.com/?filter=%27ID%27%20IS%20%27c42f2379-d7b5-4378-8ce4-9bca293c6189%27&page=2503) into your Cloud environment.
 ### 2. Add dependency to your extension:
 ```json
     {
@@ -58,7 +58,7 @@ if FeatureMgt.IsEnabled('ShowLocals') then begin
      IsLocal := Rec."Country/Region Code" = CompanyInfo."Country/Region Code";
 end
 ```
-Or [a defined snippet](EXAMPLE/.vscode/al.code-snippets) to check is `ApplicationArea` includes your feature identifier. Example:
+Or [a defined snippet](EXAMPLE/.vscode/al.code-snippets) to check if `ApplicationArea` includes your feature identifier. Example:
 ```javascript
 if StrPos(ApplicationArea(), '#ShowLocals,') <> 0 then begin
      // feature 'ShowLocals' is enabled
@@ -67,9 +67,9 @@ if StrPos(ApplicationArea(), '#ShowLocals,') <> 0 then begin
 end
 ```
 ## Define Features
-OpenFeature extension comes with `Providers` which are managing features as well of it's states.
+OpenFeature extension comes with `Providers` which are managing features as well as their states.
 ### Condition Provider
-`ConditionProvider_FF_TSL` codeunit enables any extension to add features with enable conditions. Example: 
+`ConditionProvider_FF_TSL` codeunit enables any extension to add features with enabled conditions. Example: 
 ```javascript
 // Add new feature with condition to be enabled only for users with email ending with '.nz'.
 ConditionProvider.AddFeature('KIAORA', '[Enable user to send welcome email to New Zealand customer](https://feedback.365extensions.com/bc/p/unable-to-delete-company)');
@@ -79,7 +79,7 @@ ConditionProvider.AddFeatureCondition('KIAORA', 'NZUSER');
 ```
 As introduced, conditions could be modified by any user with `Feature Mgt. - Admin` permission set assigned.
 ### Harness Provider
-`HarnessProvider_FF_TSL` codeunit enables integration with [Harness Feature Flags]() service which will mirror enabled features within your Business Central environment. Setup example:
+`HarnessProvider_FF_TSL` codeunit enables integration with [Harness Feature Flags](https://www.harness.io/products/feature-flags) service which will mirror enabled features within your Business Central environment. Setup example:
 ```javascript
 // App Harness provider. It will load all available features automatically.
 ISecretProvider := SecretProvider;
