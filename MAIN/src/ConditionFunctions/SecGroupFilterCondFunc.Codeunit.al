@@ -4,10 +4,12 @@ codeunit 58650 "SecGroupFilterCondFunc_FF_TSL" implements IConditionFunction_FF_
     Permissions =
         tabledata "Security Group Member Buffer" = R;
 
+    var
+        UserFilterCondFunc: Codeunit UserFilterCondFunc_FF_TSL;
+
     procedure LookupConditionArgument(var Argument: Text[2048])
     var
         TempSecurityGroupMemberBuffer: Record "Security Group Member Buffer" temporary;
-        UserFilterCondFunc: Codeunit UserFilterCondFunc_FF_TSL;
         FilterPageBuilder: FilterPageBuilder;
         ItemName: Text;
         FormatItemNameLbl: Label 'Security Group';
@@ -16,17 +18,18 @@ codeunit 58650 "SecGroupFilterCondFunc_FF_TSL" implements IConditionFunction_FF_
         FilterPageBuilder.AddTable(ItemName, DATABASE::"Security Group Member Buffer");
         FilterPageBuilder.AddFieldNo(ItemName, TempSecurityGroupMemberBuffer.FieldNo("Security Group Code"));
         if Argument <> '' then
-            FilterPageBuilder.SetView(ItemName, Argument);
+            FilterPageBuilder.SetView(ItemName, UserFilterCondFunc.ConvertTextToView(Argument));
         if FilterPageBuilder.RunModal() then
-            Argument := UserFilterCondFunc.ConvertViewToText(FilterPageBuilder.GetView(ItemName, false))
+            Argument := UserFilterCondFunc.ConvertViewToText(FilterPageBuilder.GetView(ItemName, true))
     end;
 
-    procedure ValidateConditionArgument(Argument: Text[2048])
+    procedure ValidateConditionArgument(Argument: Text): Text[2048]
     var
         TempSecurityGroupMemberBuffer: Record "Security Group Member Buffer" temporary;
     begin
-        TempSecurityGroupMemberBuffer.SetView(Argument);
+        TempSecurityGroupMemberBuffer.SetView(UserFilterCondFunc.ConvertTextToView(Argument));
         if TempSecurityGroupMemberBuffer.IsEmpty() then;
+        exit(UserFilterCondFunc.ConvertViewToText(TempSecurityGroupMemberBuffer.GetView(true)))
     end;
 
     procedure IsActiveCondition(Argument: Text[2048]): Boolean
@@ -36,7 +39,7 @@ codeunit 58650 "SecGroupFilterCondFunc_FF_TSL" implements IConditionFunction_FF_
     begin
         SecurityGroup.GetMembers(TempSecurityGroupMemberBuffer);
         if Argument <> '' then
-            TempSecurityGroupMemberBuffer.SetView(Argument);
+            TempSecurityGroupMemberBuffer.SetView(UserFilterCondFunc.ConvertTextToView(Argument));
         TempSecurityGroupMemberBuffer.FilterGroup(2);
         TempSecurityGroupMemberBuffer.SetRange("User Security ID", UserSecurityId());
         exit(not TempSecurityGroupMemberBuffer.IsEmpty())

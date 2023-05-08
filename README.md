@@ -23,30 +23,70 @@
 </p>
 
 ## Overview
-Our goal is to populate the feature flag driven development among Dynamics 365 Business Central community by providing a workable tool to manage it.
+OpenFeature for AL is created to populate the feature flag-driven development among Dynamics 365 Business Central community by providing a workable tool to manage it.
 ## Installation
-- **For development and on-prem installation:** clone this repository, compile and deploy an app
-- **For SaaS:** dependency reference will be provided shortly after the first AppSource release
+### 1. Deploy OpenFeature extension to your environment
+- **For On-Prem and local development**: Clone PTE release `git clone -b release/PTE https://github.com/thetanz/OpenFeature-al.git`, package extension from `MAIN` folder and deploy to your On-Prem environment.
+- **For SaaS**: Follow [link to install OpenFeature extension]() into your Cloud environment.
+### 2. Add dependency to your extension:
+```json
+    {
+      "id": "c42f2379-d7b5-4378-8ce4-9bca293c6189",
+      "publisher": "Theta Systems Limited",
+      "name": "OpenFeature",
+      "version": "3.0.0.0"
+    }
+```
 ## Usage
-Feature Flags extension allows the development team to manage feature flags and rules when they are enabled. When the feature is indicated as enabled, the extension takes care of appending [ApplicationArea](https://docs.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-applicationarea-property) with an enabled feature identifier, so then it will be enabled for a current user session. 
-### ApplicationArea for Pages
-Developer should define ApplicationArea to be equal to a Feature Code to all feature-related page controls and actions:
+`OpenFeature` extension allows the development team to manage feature flags and rules when they are enabled. When the feature is indicated as enabled, the extension takes care of appending [ApplicationArea](https://docs.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-applicationarea-property) with an enabled feature identifier, so then it will be enabled for a current user session. 
+### For Pages
+Use your feature identifier as an `ApplicationArea` for all feature-related page controls and actions. Example: 
 ```javascript
-field("IsLocal_FF_TSL"; IsLocal)
+field(IsLocal; IsLocal)
 {
-     Caption = 'Local';
+     Caption = 'Local Customer';
      ToolTip = 'Indicates if customer is local.';
-     ApplicationArea = <FEATURE>;
+     ApplicationArea = ShowLocals;
 }
 ```
-### ApplicationArea for Code
-Developer should wrap feature-related code block into a condition that checks if ApplicationArea includes Feature Codes. You can use [a defined snippet](DEMO/.vscode/al.code-snippets) for this:
+### For Code
+Wrap feature-related code block into a condition. It's recommended to use `IsEnabled` function from `FeatureMgt_FF_TSL` codeunit. Example: 
 ```javascript
-if StrPos(ApplicationArea(), '#<FEATURE>,') <> 0 then begin
-     // feature <FEATURE> is enabled
+if FeatureMgt.IsEnabled('ShowLocals') then begin
+     // feature 'ShowLocals' is enabled
      CompanyInfo.Get();
      IsLocal := Rec."Country/Region Code" = CompanyInfo."Country/Region Code";
-end;
+end
+```
+Or [a defined snippet](EXAMPLE/.vscode/al.code-snippets) to check is `ApplicationArea` includes your feature identifier. Example:
+```javascript
+if StrPos(ApplicationArea(), '#ShowLocals,') <> 0 then begin
+     // feature 'ShowLocals' is enabled
+     CompanyInfo.Get();
+     IsLocal := Rec."Country/Region Code" = CompanyInfo."Country/Region Code";
+end
+```
+## Define Features
+OpenFeature extension comes with `Providers` which are managing features as well of it's states.
+### Condition Provider
+`ConditionProvider_FF_TSL` codeunit enables any extension to add features with enable conditions. Example: 
+```javascript
+// Add new feature with condition to be enabled only for users with email ending with '.nz'.
+ConditionProvider.AddFeature('KIAORA', '[Enable user to send welcome email to New Zealand customer](https://feedback.365extensions.com/bc/p/unable-to-delete-company)');
+User.SetFilter("Contact Email", '*.nz');
+ConditionProvider.AddCondition('NZUSER', ConditionFunction_FF_TSL::UserFilter, User.GetView());
+ConditionProvider.AddFeatureCondition('KIAORA', 'NZUSER');
+```
+As introduced, conditions could be modified by any user with `Feature Mgt. - Admin` permission set assigned.
+### Harness Provider
+`HarnessProvider_FF_TSL` codeunit enables integration with [Harness Feature Flags]() service which will mirror enabled features within your Business Central environment. Setup example:
+```javascript
+// App Harness provider. It will load all available features automatically.
+ISecretProvider := SecretProvider;
+ISecretProvider.GetSecret('AccountID', AccountID);
+ISecretProvider.GetSecret('APIKey', APIKey);
+ProjectID := 'default_project';
+HarnessProvider.AddProvider('THETA_HARNESS', AccountID, APIKey, ProjectID, HarnessEnvironmentMatch_FF_TSL::EnvironmentType);
 ```
 ## Roadmap
 See the [open issues](https://github.com/thetanz/OpenFeature-al/issues) for a list of proposed features (and known issues).

@@ -29,6 +29,11 @@ page 58537 "Conditions_FF_TSL"
                 field(Argument; Rec.Argument)
                 {
                     ToolTip = 'Specifies the value of the Argument field.';
+
+                    trigger OnValidate()
+                    begin
+                        IsActive := ConditionProvider.IsActiveCondition(Rec.SystemId)
+                    end;
                 }
                 field(IsActive; IsActive)
                 {
@@ -52,6 +57,12 @@ page 58537 "Conditions_FF_TSL"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         IsActive := false
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        ConditionProvider.RecalculateCondition(Rec, false);
+        IsActive := ConditionProvider.IsActiveCondition(Rec.SystemId)
     end;
 
     trigger OnModifyRecord(): Boolean

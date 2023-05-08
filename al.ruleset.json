@@ -6,6 +6,16 @@
             "id": "AA0189",
             "action": "Hidden",
             "justification": "CodeCop Warning AA0189 is not applicable cases where user introduce a custom ApplicationArea."
+        },
+        {
+            "id": "AA0215",
+            "action": "Hidden",
+            "justification": "CodeCop Warning AA0215 is not applicable for PTE app with suffix. Known issue: https://github.com/microsoft/AL/issues/5763"
+        },
+        {
+            "id": "AA0072",
+            "action": "Hidden",
+            "justification": "CodeCop Warning AA0072 is not appreciated :)"
         }
     ]
 }

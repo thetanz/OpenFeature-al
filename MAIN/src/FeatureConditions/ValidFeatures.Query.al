@@ -2,6 +2,7 @@ query 58536 "ValidFeatures_FF_TSL"
 {
     Access = Internal;
     QueryType = Normal;
+    ReadState = ReadUncommitted;
     Permissions =
         tabledata FeatureCondition_FF_TSL = R;
 

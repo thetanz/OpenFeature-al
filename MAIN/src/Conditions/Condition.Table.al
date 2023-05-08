@@ -8,7 +8,7 @@ table 58537 "Condition_FF_TSL"
 
     fields
     {
-        field(1; "Code"; Code[20])
+        field(1; "Code"; Code[50])
         {
             Caption = 'Code';
             DataClassification = CustomerContent;
@@ -31,22 +31,15 @@ table 58537 "Condition_FF_TSL"
             DataClassification = CustomerContent;
 
             trigger OnValidate()
-            var
-                IConditionFunction: Interface "IConditionFunction_FF_TSL";
             begin
-                if Argument <> xRec.Argument then begin
-                    IConditionFunction := Function;
-                    IConditionFunction.ValidateConditionArgument(Argument);
-                    ConditionProvider.RecalculateCondition(Rec, false);
-                    FeatureMgt.RefreshApplicationArea(false)
-                end
+                if Argument <> xRec.Argument then
+                    ValidateArgument(Argument);
             end;
 
             trigger OnLookup()
             var
                 IConditionFunction: Interface "IConditionFunction_FF_TSL";
             begin
-                TestField(Function);
                 IConditionFunction := Function;
                 IConditionFunction.LookupConditionArgument(Argument);
                 ConditionProvider.RecalculateCondition(Rec, false);
@@ -90,9 +83,25 @@ table 58537 "Condition_FF_TSL"
     begin
         FeatureCondition.SetRange(ConditionCode, Code);
         if not FeatureCondition.IsEmpty() then
-            if Confirm(DeleteQst) then
-                FeatureCondition.DeleteAll();
+            if not Confirm(DeleteQst) then
+                Error('');
+        FeatureCondition.DeleteAll();
         ConditionProvider.RecalculateCondition(Rec, true);
         FeatureMgt.RefreshApplicationArea(false)
+    end;
+
+    procedure ValidateArgument(NewArgument: Text): Boolean
+    var
+        IConditionFunction: Interface "IConditionFunction_FF_TSL";
+        NewArgumentValue: Text[2048];
+    begin
+        IConditionFunction := Function;
+        NewArgumentValue := IConditionFunction.ValidateConditionArgument(NewArgument);
+        if Argument <> NewArgumentValue then begin
+            Argument := NewArgumentValue;
+            ConditionProvider.RecalculateCondition(Rec, false);
+            FeatureMgt.RefreshApplicationArea(false);
+            exit(true)
+        end
     end;
 }
