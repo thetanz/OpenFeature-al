@@ -137,6 +137,12 @@ codeunit 70254351 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
 
     end;
 
+    [NonDebuggable]
+    procedure Setup(ConnectionInfo: JsonObject; ContextChangeUserSecurityID: Guid)
+    begin
+
+    end;
+
     #endregion
 
     #region Calculation

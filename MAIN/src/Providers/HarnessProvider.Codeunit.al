@@ -2,8 +2,11 @@ codeunit 70254352 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
 {
     Access = Public;
     SingleInstance = true;
+    Permissions =
+        tabledata User = R;
 
     var
+        FeatureMgt: Codeunit FeatureMgt_FF_TSL;
         Cache: Dictionary of [Text, JsonToken];
         AccountIDTxt: Label 'AccountID', Locked = true;
         APIKeyTxt: Label 'APIKey', Locked = true;
@@ -35,7 +38,6 @@ codeunit 70254352 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
     [NonDebuggable]
     local procedure AddProvider(Code: Code[20]; AccountID: Text; APIKey: Text; ProjectID: Text; OrganizationID: Text; EnvironmentID: Text; EnvironmentMatch: text): Boolean
     var
-        FeatureMgt: Codeunit FeatureMgt_FF_TSL;
         ConnectionInfo: JsonObject;
     begin
         ConnectionInfo.Add(AccountIDTxt, AccountID);
@@ -76,16 +78,59 @@ codeunit 70254352 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
         exit(GetFeatures(ConnectionInfo, false))
     end;
 
+    [NonDebuggable]
+    procedure Setup(ConnectionInfo: JsonObject; ContextChangeUserSecurityID: Guid)
+    var
+        User: Record User;
+    begin
+        if not IsNullGuid(ContextChangeUserSecurityID) then
+            User.SetRange("User Security ID", ContextChangeUserSecurityID);
+        if User.FindSet() then
+            repeat
+                if not CreateOrUpdateTarget(User, ConnectionInfo) then
+                    ; // TODO: Log an event
+            until User.Next() = 0;
+    end;
+
     #endregion
 
     #region Client
+
+    [NonDebuggable]
+    local procedure CreateOrUpdateTarget(User: Record User; ConnectionInfo: JsonObject): Boolean
+    var
+        Content: JsonObject;
+        ContextAttributes: JsonObject;
+        ContextID, OrganizationID, ProjectID, EnvironmentID : Text;
+        CreateTargetRequestPathTok: Label '/cf/admin/targets?orgIdentifier=%1', Comment = '%1 - orgIdentifier', Locked = true;
+        UpdateTargetRequestPathTok: Label '/cf/admin/targets/%1?orgIdentifier=%2&projectIdentifier=%3&environmentIdentifier=%4', Comment = '%1 - targetId, %2 - orgIdentifier, %3 - projectIdentifier, %4 - environmentIdentifier', Locked = true;
+    begin
+        OrganizationID := GetValue(ConnectionInfo, OrganizationIDTxt, true);
+        ProjectID := GetValue(ConnectionInfo, ProjectIDTxt, true);
+        EnvironmentID := GetEnvironmentID(ConnectionInfo);
+        Content.Add('account', GetValue(ConnectionInfo, AccountIDTxt, true));
+        Content.Add('anonymous', true);
+        Content.Add('environment', EnvironmentID);
+        ContextID := FeatureMgt.GetUserContext(User, ContextAttributes);
+        Content.Add('identifier', ContextID);
+        Content.Add('attributes', ContextAttributes);
+        Content.Add('name', 'Anonymous User');
+        Content.Add('org', OrganizationID);
+        Content.Add('project', ProjectID);
+        if TrySendRequest('POST', StrSubstNo(CreateTargetRequestPathTok, OrganizationID), Content, ConnectionInfo) then
+            exit(true);
+        if TrySendRequest('DELETE', StrSubstNo(UpdateTargetRequestPathTok, ContextID, OrganizationID, ProjectID, EnvironmentID), ConnectionInfo) then
+            exit(TrySendRequest('POST', StrSubstNo(CreateTargetRequestPathTok, OrganizationID), Content, ConnectionInfo));
+        // TODO: Follow up on a API bug: https://community.harness.io/t/update-target-api-not-working/14069
+        // exit(TrySendRequest('PUT', StrSubstNo(UpdateTargetRequestPathTok, ContextID, OrganizationID, ProjectID, EnvironmentID), Content, ConnectionInfo))
+    end;
 
     [NonDebuggable]
     local procedure GetFeatures(ConnectionInfo: JsonObject; OnlyEnabled: Boolean) Result: Dictionary of [Code[50], Text[2048]]
     var
         ResponseJsonToken, FeaturesJsonToken, FeatureJsonToken : JsonToken;
         AdditionalQueryParams: Text;
-        FeaturesRequestPathTok: Label '/cf/admin/features?accountIdentifier=%1&orgIdentifier=%2&projectIdentifier=%3&environmentIdentifier=%4&pageNumber=0&pageSize=1000&archived=false&kind=boolean', Comment = '%1 - accountIdentifier, %2 - orgIdentifier, %3 - projectIdentifier, %4 - environmentIdentifier', Locked = true;
+        FeaturesRequestPathTok: Label '/cf/admin/features?accountIdentifier=%1&orgIdentifier=%2&projectIdentifier=%3&environmentIdentifier=%4&pageNumber=0&pageSize=1000&archived=false&targetIdentifier=%5&kind=boolean', Comment = '%1 - accountIdentifier, %2 - orgIdentifier, %3 - projectIdentifier, %4 - environmentIdentifier, %5 - targetIdentifier', Locked = true;
         OnlyEnabledTok: Label '&enabled=true', Locked = true;
     begin
         if OnlyEnabled then
@@ -97,7 +142,8 @@ codeunit 70254352 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
                 GetValue(ConnectionInfo, AccountIDTxt, true),
                 GetValue(ConnectionInfo, OrganizationIDTxt, true),
                 GetValue(ConnectionInfo, ProjectIDTxt, true),
-                GetEnvironmentID(ConnectionInfo)
+                GetEnvironmentID(ConnectionInfo),
+                FeatureMgt.GetCurrentUserContextID()
             ) + AdditionalQueryParams,
             ConnectionInfo,
             ResponseJsonToken)
@@ -105,10 +151,11 @@ codeunit 70254352 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
             Error(GetLastErrorText());
         if ResponseJsonToken.SelectToken('$.features', FeaturesJsonToken) then
             foreach FeatureJsonToken in FeaturesJsonToken.AsArray() do
-                Result.Add(
-                    CopyStr(GetValue(FeatureJsonToken.AsObject(), 'name'), 1, 50),
-                    CopyStr(GetValue(FeatureJsonToken.AsObject(), 'description'), 1, 2048)
-                )
+                if (not OnlyEnabled) or (GetValue(FeatureJsonToken.AsObject(), 'evaluation') = 'true') then
+                    Result.Add(
+                        CopyStr(GetValue(FeatureJsonToken.AsObject(), 'name'), 1, 50),
+                        CopyStr(GetValue(FeatureJsonToken.AsObject(), 'description'), 1, 2048)
+                    )
     end;
 
     [TryFunction]
@@ -128,17 +175,40 @@ codeunit 70254352 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
             Error(IsNotValidErr);
     end;
 
+    [NonDebuggable]
+    local procedure TrySendRequest(Method: Text; Path: Text; ConnectionInfo: JsonObject): Boolean
+    var
+        Content: JsonObject;
+        ResponseJsonToken: JsonToken;
+    begin
+        exit(TrySendRequest(Method, Path, Content, ConnectionInfo, ResponseJsonToken))
+    end;
+
+    [NonDebuggable]
+    local procedure TrySendRequest(Method: Text; Path: Text; Content: JsonObject; ConnectionInfo: JsonObject): Boolean
+    var
+        ResponseJsonToken: JsonToken;
+    begin
+        exit(TrySendRequest(Method, Path, Content, ConnectionInfo, ResponseJsonToken))
+    end;
+
+    [NonDebuggable]
+    local procedure TrySendRequest(Method: Text; Path: Text; ConnectionInfo: JsonObject; var ResponseJsonToken: JsonToken): Boolean
+    var
+        Content: JsonObject;
+    begin
+        exit(TrySendRequest(Method, Path, Content, ConnectionInfo, ResponseJsonToken))
+    end;
+
     [TryFunction]
     [NonDebuggable]
-    local procedure TrySendRequest(Method: Text; Path: Text; ConnectionInfo: JsonObject; var ResponseJsonToken: JsonToken)
+    local procedure TrySendRequest(Method: Text; Path: Text; Content: JsonObject; ConnectionInfo: JsonObject; var ResponseJsonToken: JsonToken)
     var
-#pragma warning disable AA0072
-        Client: HttpClient;
-        RequestMessage: HttpRequestMessage;
-        ResponseMessage: HttpResponseMessage;
-        Headers: HttpHeaders;
-#pragma warning restore AA0072
-        CacheKey, ResponseAsText, APIKey : Text;
+        HttpClient: HttpClient;
+        HttpRequestMessage: HttpRequestMessage;
+        HttpResponseMessage: HttpResponseMessage;
+        HttpHeaders: HttpHeaders;
+        CacheKey, ResponseAsText, APIKey, ContentAsText : Text;
         HostTxt: Label 'https://app.harness.io/gateway', Locked = true;
         ServiceUnavailableErr: Label 'Harness service is unavailable.';
         Service4XXErr: Label 'Harness request is invalid. Reason: %1.', Comment = '%1 - ReasonPhrase';
@@ -146,25 +216,33 @@ codeunit 70254352 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
         FailedToParseErr: Label 'Failed to parse a JSON response.';
     begin
         APIKey := GetValue(ConnectionInfo, APIKeyTxt, true);
-        CacheKey := Method + Path + APIKey;
+        CacheKey := Path + APIKey;
         if Cache.Get(CacheKey, ResponseJsonToken) then
             exit;
-        RequestMessage.Method(Method);
-        RequestMessage.SetRequestUri(HostTxt + Path);
-        RequestMessage.GetHeaders(Headers);
-        Headers.Add('x-api-key', APIKey);
-        if not Client.Send(RequestMessage, ResponseMessage) then
+        HttpRequestMessage.Method(Method);
+        HttpRequestMessage.SetRequestUri(HostTxt + Path);
+        HttpRequestMessage.GetHeaders(HttpHeaders);
+        HttpHeaders.Add('x-api-key', APIKey);
+        if Method in ['POST', 'PUT'] then begin
+            Content.WriteTo(ContentAsText);
+            HttpRequestMessage.Content.WriteFrom(ContentAsText);
+            HttpRequestMessage.Content.GetHeaders(HttpHeaders);
+            HttpHeaders.Remove('Content-Type');
+            HttpHeaders.Add('Content-Type', 'application/json');
+        end;
+        if not HttpClient.Send(HttpRequestMessage, HttpResponseMessage) then
             Error(ServiceUnavailableErr);
-        if not ResponseMessage.IsSuccessStatusCode then
-            if (300 <= ResponseMessage.HttpStatusCode) and (ResponseMessage.HttpStatusCode < 500) then
-                Error(Service4XXErr, ResponseMessage.ReasonPhrase)
+        if not HttpResponseMessage.IsSuccessStatusCode then
+            if (300 <= HttpResponseMessage.HttpStatusCode) and (HttpResponseMessage.HttpStatusCode < 500) then
+                Error(Service4XXErr, HttpResponseMessage.ReasonPhrase)
             else
-                Error(Service5XXErr, ResponseMessage.ReasonPhrase);
-        if ResponseMessage.Content.ReadAs(ResponseAsText) then
+                Error(Service5XXErr, HttpResponseMessage.ReasonPhrase);
+        if HttpResponseMessage.Content.ReadAs(ResponseAsText) then
             if ResponseAsText <> '' then
                 if not ResponseJsonToken.ReadFrom(ResponseAsText) then
                     Error(FailedToParseErr);
-        Cache.Set(CacheKey, ResponseJsonToken)
+        if Method = 'GET' then
+            Cache.Set(CacheKey, ResponseJsonToken)
     end;
 
     local procedure GetEnvironmentID(ConnectionInfo: JsonObject): Text
