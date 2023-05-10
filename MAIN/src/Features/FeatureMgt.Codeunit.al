@@ -172,6 +172,7 @@ codeunit 58537 "FeatureMgt_FF_TSL"
     var
         UserPersonalization: Record "User Personalization";
         AllProfile: Record "All Profile";
+        EnvironmentInformation: Codeunit "Environment Information";
         UserSettings: Codeunit "User Settings";
         UserPermissions: Codeunit "User Permissions";
         EmailDomain: Text;
@@ -182,6 +183,11 @@ codeunit 58537 "FeatureMgt_FF_TSL"
         ContextAttributes.Add('emailDomain', EmailDomain);
         ContextAttributes.Add('isApp', not IsNullGuid(User."Application ID"));
         ContextAttributes.Add('isSuper', UserPermissions.IsSuper(User."User Security ID"));
+        ContextAttributes.Add('IsProdEnv', EnvironmentInformation.IsProduction());
+        ContextAttributes.Add('IsSandboxEnv', EnvironmentInformation.IsSandbox());
+        ContextAttributes.Add('IsSaaSEnv', EnvironmentInformation.IsSaaS());
+        ContextAttributes.Add('envName', EnvironmentInformation.GetEnvironmentName());
+        ContextAttributes.Add('appFamily', EnvironmentInformation.GetApplicationFamily());
         if TempUserSettings."User Security ID" <> User."User Security ID" then begin
             Clear(TempUserSettings);
             UserPersonalization.SetRange("User SID", User."User Security ID");
@@ -201,6 +207,7 @@ codeunit 58537 "FeatureMgt_FF_TSL"
             end
         end;
         ContextAttributes.Add('profileID', TempUserSettings."Profile ID");
+        OnGetUserContext(ContextAttributes);
         ContextID := GetUserContextID(User."User Security ID");
     end;
 
@@ -230,6 +237,16 @@ codeunit 58537 "FeatureMgt_FF_TSL"
                 until Provider.Next() = 0;
             Clear(TempUserSettings);
         end
+    end;
+
+    #endregion
+
+    #region Events
+
+    [InternalEvent(false)]
+    local procedure OnGetUserContext(var ContextAttributes: JsonObject)
+    begin
+
     end;
 
     #endregion
