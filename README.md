@@ -78,13 +78,23 @@ ConditionProvider.AddCondition('NZUSER', ConditionFunction_FF_TSL::UserFilter, U
 ConditionProvider.AddFeatureCondition('KIAORA', 'NZUSER');
 ```
 As introduced, conditions could be modified by any user with `Feature Mgt. - Admin` permission set assigned.
-### Harness Provider
+### PostHog Provider (PRODUCTION)
+`PostHogProvider_FF_TSL` codeunit enables integration with [PostHog Feature Flags](https://posthog.com/feature-flags) service which will mirror enabled features within your Business Central environment. Setup example:
+```javascript
+// App PostHog provider. It will load all available features automatically.
+ISecretProvider := SecretProvider;
+ISecretProvider.GetSecret('PostHogPersonalAPIKey', PersonalAPIKey);
+ISecretProvider.GetSecret('PostHogProjectID', ProjectID);
+if not PostHogProvider.AddProvider('THETA_POSTHOG', PersonalAPIKey, ProjectID) then
+     Error(GetLastErrorText());
+```
+### Harness Provider (EXPERIMENTAL)
 `HarnessProvider_FF_TSL` codeunit enables integration with [Harness Feature Flags](https://www.harness.io/products/feature-flags) service which will mirror enabled features within your Business Central environment. Setup example:
 ```javascript
 // App Harness provider. It will load all available features automatically.
 ISecretProvider := SecretProvider;
-ISecretProvider.GetSecret('AccountID', AccountID);
-ISecretProvider.GetSecret('APIKey', APIKey);
+ISecretProvider.GetSecret('HarnessAccountID', AccountID);
+ISecretProvider.GetSecret('HarnessAPIKey', APIKey);
 ProjectID := 'default_project';
 HarnessProvider.AddProvider('THETA_HARNESS', AccountID, APIKey, ProjectID, HarnessEnvironmentMatch_FF_TSL::EnvironmentType);
 ```
