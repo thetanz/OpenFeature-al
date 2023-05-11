@@ -27,7 +27,7 @@ OpenFeature for AL is created to populate the feature flag-driven development am
 ## Installation
 ### 1. Deploy OpenFeature extension to your environment
 - **For On-Prem and local development**: Clone PTE release `git clone -b release/PTE https://github.com/thetanz/OpenFeature-al.git`, package extension from `MAIN` folder and deploy to your On-Prem environment.
-- **For SaaS**: Follow the [link to install OpenFeature extension](https://businesscentral.dynamics.com/?filter=%27ID%27%20IS%20%27c42f2379-d7b5-4378-8ce4-9bca293c6189%27&page=2503) into your Cloud environment.
+- **For SaaS**: Follow the [link to install OpenFeature extension](https://businesscentral.dynamics.com/?filter=%27ID%27%20IS%20%27c42f2379-d7b5-4378-8ce4-9bca293c6189%27&page=2503){:target="_blank"} into your Cloud environment.
 ### 2. Add dependency to your extension:
 ```json
     {
@@ -38,7 +38,7 @@ OpenFeature for AL is created to populate the feature flag-driven development am
     }
 ```
 ## Usage
-`OpenFeature` extension allows the development team to manage feature flags and rules when they are enabled. When the feature is indicated as enabled, the extension takes care of appending [ApplicationArea](https://docs.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-applicationarea-property) with an enabled feature identifier, so then it will be enabled for a current user session. 
+`OpenFeature` extension allows the development team to manage feature flags and rules when they are enabled. When the feature is indicated as enabled, the extension takes care of appending [ApplicationArea](https://docs.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-applicationarea-property){:target="_blank"} with an enabled feature identifier, so then it will be enabled for a current user session. 
 ### For Pages
 Use your feature identifier as an `ApplicationArea` for all feature-related page controls and actions. Example: 
 ```javascript
@@ -79,7 +79,7 @@ ConditionProvider.AddFeatureCondition('KIAORA', 'NZUSER');
 ```
 As introduced, conditions could be modified by any user with `Feature Mgt. - Admin` permission set assigned.
 ### PostHog Provider (PRODUCTION)
-`PostHogProvider_FF_TSL` codeunit enables integration with [PostHog Feature Flags](https://posthog.com/feature-flags) service which will mirror enabled features within your Business Central environment. Setup example:
+`PostHogProvider_FF_TSL` codeunit enables integration with [PostHog Feature Flags](https://posthog.com/feature-flags){:target="_blank"} service which will mirror enabled features within your Business Central environment. Setup example:
 ```javascript
 // App PostHog provider. It will load all available features automatically.
 ISecretProvider := SecretProvider;
@@ -89,7 +89,7 @@ if not PostHogProvider.AddProvider('THETA_POSTHOG', PersonalAPIKey, ProjectID) t
      Error(GetLastErrorText());
 ```
 ### Harness Provider (EXPERIMENTAL)
-`HarnessProvider_FF_TSL` codeunit enables integration with [Harness Feature Flags](https://www.harness.io/products/feature-flags) service which will mirror enabled features within your Business Central environment. Setup example:
+`HarnessProvider_FF_TSL` codeunit enables integration with [Harness Feature Flags](https://www.harness.io/products/feature-flags){:target="_blank"} service which will mirror enabled features within your Business Central environment. Setup example:
 ```javascript
 // App Harness provider. It will load all available features automatically.
 ISecretProvider := SecretProvider;
@@ -110,5 +110,5 @@ Contributions make the open-source community a fantastic place to learn, inspire
 ## License
 It is distributed under GNU v3.0. See [`LICENSE`](LICENSE) for more information.
 ## Contact
-- Owner: [@vodyl](https://twitter.com/vodyl)
+- Owner: [@vodyl](https://twitter.com/vodyl){:target="_blank"}
 - Link: [https://github.com/thetanz/OpenFeature-al](https://github.com/thetanz/OpenFeature-al)
