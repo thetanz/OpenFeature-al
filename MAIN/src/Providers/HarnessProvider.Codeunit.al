@@ -105,10 +105,10 @@ codeunit 58652 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
         CreateTargetRequestPathTok: Label '/cf/admin/targets?orgIdentifier=%1', Comment = '%1 - orgIdentifier', Locked = true;
         UpdateTargetRequestPathTok: Label '/cf/admin/targets/%1?orgIdentifier=%2&projectIdentifier=%3&environmentIdentifier=%4', Comment = '%1 - targetId, %2 - orgIdentifier, %3 - projectIdentifier, %4 - environmentIdentifier', Locked = true;
     begin
-        OrganizationID := GetValue(ConnectionInfo, OrganizationIDTxt, true);
-        ProjectID := GetValue(ConnectionInfo, ProjectIDTxt, true);
+        OrganizationID := FeatureMgt.GetValue(ConnectionInfo, OrganizationIDTxt);
+        ProjectID := FeatureMgt.GetValue(ConnectionInfo, ProjectIDTxt);
         EnvironmentID := GetEnvironmentID(ConnectionInfo);
-        Content.Add('account', GetValue(ConnectionInfo, AccountIDTxt, true));
+        Content.Add('account', FeatureMgt.GetValue(ConnectionInfo, AccountIDTxt));
         Content.Add('anonymous', true);
         Content.Add('environment', EnvironmentID);
         ContextID := FeatureMgt.GetUserContext(User, ContextAttributes);
@@ -135,26 +135,24 @@ codeunit 58652 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
     begin
         if OnlyEnabled then
             AdditionalQueryParams := OnlyEnabledTok;
-        if not TrySendRequest(
+        TrySendRequest(
             'GET',
             StrSubstNo(
                 FeaturesRequestPathTok,
-                GetValue(ConnectionInfo, AccountIDTxt, true),
-                GetValue(ConnectionInfo, OrganizationIDTxt, true),
-                GetValue(ConnectionInfo, ProjectIDTxt, true),
+                FeatureMgt.GetValue(ConnectionInfo, AccountIDTxt),
+                FeatureMgt.GetValue(ConnectionInfo, OrganizationIDTxt),
+                FeatureMgt.GetValue(ConnectionInfo, ProjectIDTxt),
                 GetEnvironmentID(ConnectionInfo),
                 FeatureMgt.GetCurrentUserContextID()
             ) + AdditionalQueryParams,
             ConnectionInfo,
-            ResponseJsonToken)
-        then
-            Error(GetLastErrorText());
+            ResponseJsonToken);
         if ResponseJsonToken.SelectToken('$.features', FeaturesJsonToken) then
             foreach FeatureJsonToken in FeaturesJsonToken.AsArray() do
-                if (not OnlyEnabled) or (GetValue(FeatureJsonToken.AsObject(), 'evaluation') = 'true') then
+                if (not OnlyEnabled) or (FeatureMgt.GetValue(FeatureJsonToken.AsObject(), 'evaluation') = 'true') then
                     Result.Add(
-                        CopyStr(GetValue(FeatureJsonToken.AsObject(), 'name'), 1, 50),
-                        CopyStr(GetValue(FeatureJsonToken.AsObject(), 'description'), 1, 2048)
+                        CopyStr(FeatureMgt.GetValue(FeatureJsonToken.AsObject(), 'name'), 1, 50),
+                        CopyStr(FeatureMgt.GetValue(FeatureJsonToken.AsObject(), 'description'), 1, 2048)
                     )
     end;
 
@@ -168,7 +166,7 @@ codeunit 58652 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
     begin
         if not TrySendRequest(
             'GET',
-            StrSubstNo(AccountRequestPathTok, GetValue(ConnectionInfo, AccountIDTxt, true)),
+            StrSubstNo(AccountRequestPathTok, FeatureMgt.GetValue(ConnectionInfo, AccountIDTxt)),
             ConnectionInfo,
             ResponseJsonToken)
         then
@@ -215,7 +213,7 @@ codeunit 58652 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
         Service5XXErr: Label 'Server failed to response. Reason: %1.', Comment = '%1 - ReasonPhrase';
         FailedToParseErr: Label 'Failed to parse a JSON response.';
     begin
-        APIKey := GetValue(ConnectionInfo, APIKeyTxt, true);
+        APIKey := FeatureMgt.GetValue(ConnectionInfo, APIKeyTxt);
         CacheKey := Path + APIKey;
         if Cache.Get(CacheKey, ResponseJsonToken) then
             exit;
@@ -250,10 +248,10 @@ codeunit 58652 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
         EnvironmentInformation: Codeunit "Environment Information";
         EnvironmentMatch: Text;
     begin
-        EnvironmentMatch := GetValue(ConnectionInfo, EnvironmentMatchTxt, true);
+        EnvironmentMatch := FeatureMgt.GetValue(ConnectionInfo, EnvironmentMatchTxt);
         case EnvironmentMatch of
             'Fixed':
-                exit(GetValue(ConnectionInfo, EnvironmentIDTxt, true));
+                exit(FeatureMgt.GetValue(ConnectionInfo, EnvironmentIDTxt));
             Format("HarnessEnvironmentMatch_FF_TSL"::EnvironmentName):
                 exit(EnvironmentInformation.GetEnvironmentName());
             Format("HarnessEnvironmentMatch_FF_TSL"::EnvironmentType):
@@ -262,26 +260,6 @@ codeunit 58652 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
                 else
                     exit('Sandbox');
         end
-    end;
-
-    [NonDebuggable]
-    local procedure GetValue(JsonObject: JsonObject; "Key": Text): Text
-    begin
-        exit(GetValue(JsonObject, "Key", false))
-    end;
-
-    [NonDebuggable]
-    local procedure GetValue(JsonObject: JsonObject; "Key": Text; ShowError: Boolean): Text
-    var
-        JsonToken: JsonToken;
-        ShouldbeDefinedTok: Label '''%1'' should be defined.', Comment = '%1 - Key';
-    begin
-        if JsonObject.Get("Key", JsonToken) then
-            if JsonToken.IsValue() then
-                if not (JsonToken.AsValue().IsNull() or JsonToken.AsValue().IsUndefined) then
-                    exit(JsonToken.AsValue().AsText());
-        if ShowError then
-            Error(ShouldbeDefinedTok, "Key");
     end;
 
     #endregion

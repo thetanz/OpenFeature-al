@@ -5,24 +5,29 @@ codeunit 50100 "InstallExample_FF_TSL"
         tabledata User = R;
 
     var
+        SecretProvider: Codeunit HandcodeSecretProvider_FF_TSL;
         ConditionProvider: Codeunit ConditionProvider_FF_TSL;
+        PostHogProvider: Codeunit PostHogProvider_FF_TSL;
         HarnessProvider: Codeunit HarnessProvider_FF_TSL;
         ISecretProvider: Interface "Secret Provider";
 
-    trigger OnInstallAppPerDatabase()
+    trigger OnInstallAppPerCompany()
     var
         AppInfo: ModuleInfo;
     begin
         NavApp.GetCurrentModuleInfo(AppInfo);
         if AppInfo.DataVersion() = Version.Create(0, 0, 0, 0) then
-            HandleFreshInstallPerDatabase()
+            HandleFreshInstallPerCompany()
     end;
 
-    local procedure HandleFreshInstallPerDatabase();
+    local procedure HandleFreshInstallPerCompany();
     begin
         // Provider: Conditions
         AddStripeFeatureWithConditionProvider();
         AddKiaOraFeatureWithConditionProvider();
+
+        // Provider: PostHog
+        AddPostHogProvider();
 
         // Provider: Harness
         AddHarnessProvider();
@@ -45,15 +50,26 @@ codeunit 50100 "InstallExample_FF_TSL"
         ConditionProvider.AddFeatureCondition('KIAORA', 'NZUSER');
     end;
 
+    local procedure AddPostHogProvider()
+    var
+        PersonalAPIKey, ProjectID : Text;
+    begin
+        // App PostHog provider. It will load all available features automatically.
+        ISecretProvider := SecretProvider;
+        ISecretProvider.GetSecret('PostHogPersonalAPIKey', PersonalAPIKey);
+        ISecretProvider.GetSecret('PostHogProjectID', ProjectID);
+        if not PostHogProvider.AddProvider('THETA_POSTHOG', PersonalAPIKey, ProjectID) then
+            Error(GetLastErrorText());
+    end;
+
     local procedure AddHarnessProvider()
     var
-        SecretProvider: Codeunit HandcodeSecretProvider_FF_TSL;
         AccountID, APIKey, ProjectID : Text;
     begin
         // App Harness provider. It will load all available features automatically.
         ISecretProvider := SecretProvider;
-        ISecretProvider.GetSecret('AccountID', AccountID);
-        ISecretProvider.GetSecret('APIKey', APIKey);
+        ISecretProvider.GetSecret('HarnessAccountID', AccountID);
+        ISecretProvider.GetSecret('HarnessAPIKey', APIKey);
         ProjectID := 'default_project';
         if not HarnessProvider.AddProvider('THETA_HARNESS', AccountID, APIKey, ProjectID, HarnessEnvironmentMatch_FF_TSL::EnvironmentType) then
             Error(GetLastErrorText());

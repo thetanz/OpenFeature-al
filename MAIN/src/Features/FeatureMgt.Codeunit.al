@@ -162,10 +162,11 @@ codeunit 58537 "FeatureMgt_FF_TSL"
 
     procedure GetUserContextID(UserSecurityID: Guid): Text
     var
+        EnvironmentInformation: Codeunit "Environment Information";
         CryptographyManagement: Codeunit "Cryptography Management";
         HashAlgorithmType: Option MD5,SHA1,SHA256,SHA384,SHA512;
     begin
-        exit(CryptographyManagement.GenerateHash(UserSecurityID, HashAlgorithmType::MD5).Remove(16))
+        exit(CryptographyManagement.GenerateHash(UserSecurityID + EnvironmentInformation.GetEnvironmentName(), HashAlgorithmType::MD5).Remove(16))
     end;
 
     procedure GetUserContext(User: Record User; var ContextAttributes: JsonObject) ContextID: Text
@@ -174,15 +175,12 @@ codeunit 58537 "FeatureMgt_FF_TSL"
         AllProfile: Record "All Profile";
         EnvironmentInformation: Codeunit "Environment Information";
         UserSettings: Codeunit "User Settings";
-        UserPermissions: Codeunit "User Permissions";
         EmailDomain: Text;
     begin
         ContextAttributes.Add('licenseType', Format(User."License Type"));
         If User."Authentication Email" <> '' then
             EmailDomain := User."Authentication Email".Substring(User."Authentication Email".LastIndexOf('@'));
         ContextAttributes.Add('emailDomain', EmailDomain);
-        ContextAttributes.Add('isApp', not IsNullGuid(User."Application ID"));
-        ContextAttributes.Add('isSuper', UserPermissions.IsSuper(User."User Security ID"));
         ContextAttributes.Add('IsProdEnv', EnvironmentInformation.IsProduction());
         ContextAttributes.Add('IsSandboxEnv', EnvironmentInformation.IsSandbox());
         ContextAttributes.Add('IsSaaSEnv', EnvironmentInformation.IsSaaS());
@@ -247,6 +245,30 @@ codeunit 58537 "FeatureMgt_FF_TSL"
     local procedure OnGetUserContext(var ContextAttributes: JsonObject)
     begin
 
+    end;
+
+    #endregion
+
+    #region Helpers
+
+    [NonDebuggable]
+    internal procedure GetValue(JsonObject: JsonObject; "Key": Text): Text
+    begin
+        exit(GetValue(JsonObject, "Key", false))
+    end;
+
+    [NonDebuggable]
+    internal procedure GetValue(JsonObject: JsonObject; "Key": Text; SkipError: Boolean): Text
+    var
+        JsonToken: JsonToken;
+        ShouldbeDefinedTok: Label '''%1'' should be defined.', Comment = '%1 - Key';
+    begin
+        if JsonObject.Get("Key", JsonToken) then
+            if JsonToken.IsValue() then
+                if not (JsonToken.AsValue().IsNull() or JsonToken.AsValue().IsUndefined) then
+                    exit(JsonToken.AsValue().AsText());
+        if not SkipError then
+            Error(ShouldbeDefinedTok, "Key");
     end;
 
     #endregion
