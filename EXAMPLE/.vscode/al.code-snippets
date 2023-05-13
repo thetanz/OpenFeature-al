@@ -3,7 +3,7 @@
         "scope": "al",
         "prefix": "tfeature (THETA)",
         "body": [
-            "if StrPos(ApplicationArea(), '#$1,') <> 0 then begin",
+            "if FeatureMgt.IsEnabled('$1') then begin",
             "   $0",
             "end;"
         ],

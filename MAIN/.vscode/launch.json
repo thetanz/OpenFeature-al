@@ -14,8 +14,7 @@
             "enableSqlInformationDebugger": true,
             "tenant": "default",
             "startupObjectType": "Page",
-            "startupObjectId": 58535,
-            "schemaUpdateMode": "ForceSync"
+            "startupObjectId": 58535
         }
     ]
 }

@@ -31,20 +31,6 @@ table 58535 "Feature_FF_TSL"
         {
             Caption = 'Description';
             Editable = false;
-
-            trigger OnValidate()
-            var
-                StartIndexOfLearnMoreUrl: Integer;
-            begin
-                if Description.EndsWith(')') and Description.Contains('](') then begin
-                    StartIndexOfLearnMoreUrl := Description.LastIndexOf('](');
-                    "Learn More Url" := CopyStr(Description.Substring(StartIndexOfLearnMoreUrl + 2).TrimEnd(')'), 1, MaxStrLen("Learn More Url"));
-                    if Description.StartsWith('[') then
-                        Description := CopyStr(Description.Substring(2, StartIndexOfLearnMoreUrl - 2).Trim(), 1, MaxStrLen(Description))
-                    else
-                        Description := CopyStr(Description.Substring(1, Description.LastIndexOf('[') - 1).Trim(), 1, MaxStrLen(Description));
-                end
-            end;
         }
         field(3; "Provider Code"; Code[20])
         {
@@ -83,5 +69,20 @@ table 58535 "Feature_FF_TSL"
             if not Provider.Get("Provider Code") then
                 Clear(Provider);
         exit(Provider)
+    end;
+
+    internal procedure SetDescription(NewDescription: Text)
+    var
+        StartIndexOfLearnMoreUrl: Integer;
+    begin
+        if NewDescription.EndsWith(')') and NewDescription.Contains('](') then begin
+            StartIndexOfLearnMoreUrl := NewDescription.LastIndexOf('](');
+            "Learn More Url" := CopyStr(NewDescription.Substring(StartIndexOfLearnMoreUrl + 2).TrimEnd(')'), 1, MaxStrLen("Learn More Url"));
+            if NewDescription.StartsWith('[') then
+                Description := CopyStr(NewDescription.Substring(2, StartIndexOfLearnMoreUrl - 2).Trim(), 1, MaxStrLen(Description))
+            else
+                Description := CopyStr(NewDescription.Substring(1, Description.LastIndexOf('[') - 1).Trim(), 1, MaxStrLen(Description));
+        end else
+            Description := CopyStr(NewDescription, 1, MaxStrLen(Description))
     end;
 }
