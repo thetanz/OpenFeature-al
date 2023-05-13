@@ -294,7 +294,7 @@ codeunit 58537 "FeatureMgt_FF_TSL"
                 CustomDimensions.Add('FeatureID', FeatureID);
                 IProvider := Provider.Type;
                 if CaptureEventJsonToken.AsValue().AsBoolean() then begin
-                    // TODO: Captrue event in backgorund
+                    // TODO: Capture event in background
                 end else
                     TryCaptureEvent(IProvider, Provider.ConnectionInfo(), EventDateTime, FeatureEvent, CustomDimensions);
             end
