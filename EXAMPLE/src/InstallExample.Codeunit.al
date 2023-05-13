@@ -37,7 +37,7 @@ codeunit 50100 "InstallExample"
         User: Record User;
     begin
         // Add new feature with condition to be enabled only for users with email ending with '.nz'.
-        ConditionProvider.AddFeature('Stripe', '[Enables Stripe Integration](https://example.com/StripeIntegrate)');
+        ConditionProvider.AddFeature('Stripe', '[Enables Stripe Integration](https://example.com/Stripe)');
         User.SetFilter("Contact Email", '*.nz');
         ConditionProvider.AddCondition('NZUserOnly', ConditionFunction_FF_TSL::UserFilter, User.GetView());
         ConditionProvider.AddFeatureCondition('Stripe', 'NZUserOnly');
