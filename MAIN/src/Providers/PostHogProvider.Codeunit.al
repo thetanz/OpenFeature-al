@@ -18,11 +18,14 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
     procedure AddProvider(Code: Code[20]; PersonalAPIKey: Text; ProjectID: Text): Boolean
     var
         ConnectionInfo: JsonObject;
+        CaptureEvents: JsonObject;
     begin
         ConnectionInfo.Add(PersonalAPIKeyTxt, PersonalAPIKey);
         ConnectionInfo.Add(ProjectIDKeyTxt, ProjectID);
-        if GetProject(ConnectionInfo) then
-            exit(FeatureMgt.AddProvider(Code, "ProviderType_FF_TSL"::PostHog, ConnectionInfo))
+        if GetProject(ConnectionInfo) then begin
+            CaptureEvents.Add(Format("FeatureEvent_FF_TSL"::StateCheck), false);
+            exit(FeatureMgt.AddProvider(Code, "ProviderType_FF_TSL"::PostHog, ConnectionInfo, CaptureEvents))
+        end
     end;
 
     #endregion
@@ -30,7 +33,7 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
     #region IProvider
 
     [NonDebuggable]
-    internal procedure Refresh(ConnectionInfo: JsonObject)
+    internal procedure ClearCache(ConnectionInfo: JsonObject)
     begin
     end;
 
@@ -40,28 +43,37 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
     end;
 
     [NonDebuggable]
-    procedure GetEnabled(ConnectionInfo: JsonObject): List of [Code[50]]
+    internal procedure GetEnabled(ConnectionInfo: JsonObject): List of [Code[50]]
     begin
         exit(Decide(ConnectionInfo))
     end;
 
     [NonDebuggable]
-    internal procedure GetAll(ConnectionInfo: JsonObject): Dictionary of [Code[50], Text[2048]]
+    internal procedure GetAll(ConnectionInfo: JsonObject): Dictionary of [Code[50], Text]
     begin
         exit(GetFeatureFlags(ConnectionInfo))
     end;
 
     [NonDebuggable]
-    procedure Setup(ConnectionInfo: JsonObject; ContextChangeUserSecurityID: Guid)
+    internal procedure SetContext(ConnectionInfo: JsonObject; ContextUserSecurityID: Guid)
     var
         User: Record User;
     begin
-        if not IsNullGuid(ContextChangeUserSecurityID) then
-            User.SetRange("User Security ID", ContextChangeUserSecurityID);
+        if not IsNullGuid(ContextUserSecurityID) then
+            User.SetRange("User Security ID", ContextUserSecurityID);
         if User.FindSet() then
             repeat
                 CreateIdentity(User, ConnectionInfo)
             until User.Next() = 0
+    end;
+
+    [NonDebuggable]
+    internal procedure CaptureEvent(ConnectionInfo: JsonObject; EventDateTime: DateTime; FeatureEvent: Enum "FeatureEvent_FF_TSL"; CustomDimensions: Dictionary of [Text, Text])
+    begin
+        case FeatureEvent of
+            "FeatureEvent_FF_TSL"::StateCheck:
+                FeatureFlagCalled(EventDateTime, CustomDimensions, ConnectionInfo);
+        end
     end;
 
     #endregion
@@ -71,10 +83,14 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
     [NonDebuggable]
     local procedure Decide(ConnectionInfo: JsonObject) Result: List of [Code[50]]
     var
-        Content: JsonObject;
+        Content, ContextAttributes : JsonObject;
         ResponseJsonToken, FeaturesJsonToken, FeatureJsonToken : JsonToken;
         RequestPathTok: Label '/decide', Locked = true;
     begin
+        if ConnectionInfo.Contains(ContextIDTxt) then
+            ConnectionInfo.Remove(ContextIDTxt);
+        ConnectionInfo.Add(ContextIDTxt, FeatureMgt.GetCurrentUserContext(ContextAttributes));
+        Content.Add('person_properties', ContextAttributes);
         TrySendRequest('POST', RequestPathTok, Content, ConnectionInfo, ResponseJsonToken);
         if ResponseJsonToken.SelectToken('$.featureFlags', FeaturesJsonToken) then
             foreach FeatureJsonToken in FeaturesJsonToken.AsArray() do
@@ -82,7 +98,7 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
     end;
 
     [NonDebuggable]
-    local procedure GetFeatureFlags(ConnectionInfo: JsonObject) Result: Dictionary of [Code[50], Text[2048]]
+    local procedure GetFeatureFlags(ConnectionInfo: JsonObject) Result: Dictionary of [Code[50], Text]
     var
         ResponseJsonToken, FeaturesJsonToken, FeatureJsonToken : JsonToken;
         RequestPathTok: Label '/api/projects/%1/feature_flags', Comment = '%1 - ProjectID', Locked = true;
@@ -92,7 +108,7 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
             foreach FeatureJsonToken in FeaturesJsonToken.AsArray() do
                 Result.Add(
                     CopyStr(FeatureMgt.GetValue(FeatureJsonToken.AsObject(), 'key'), 1, 50),
-                    CopyStr(FeatureMgt.GetValue(FeatureJsonToken.AsObject(), 'name'), 1, 2048)
+                    FeatureMgt.GetValue(FeatureJsonToken.AsObject(), 'name')
                 )
     end;
 
@@ -105,17 +121,30 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
             ConnectionInfo.Remove(ContextIDTxt);
         ConnectionInfo.Add(ContextIDTxt, FeatureMgt.GetUserContext(User, ContextAttributes));
         Content.Add('$set', ContextAttributes);
-        exit(Capture(PostHogEventType_FF_TSL::Identify, Content, ConnectionInfo))
+        exit(Capture(PostHogEvent_FF_TSL::Identify, CurrentDateTime(), Content, ConnectionInfo))
     end;
 
     [NonDebuggable]
-    local procedure Capture(EventType: Enum PostHogEventType_FF_TSL; Content: JsonObject; ConnectionInfo: JsonObject): Boolean
+    local procedure FeatureFlagCalled(EventDateTime: DateTime; CustomDimensions: Dictionary of [Text, Text]; ConnectionInfo: JsonObject): Boolean
     var
-        TypeHelper: Codeunit "Type Helper";
+        Content, Properties : JsonObject;
+    begin
+        Properties.Add('$feature_flag', CustomDimensions.Get('FeatureID'));
+        Properties.Add('$feature_flag_response', CustomDimensions.Get('IsEnabled'));
+        Properties.Add('appId', CustomDimensions.Get('CallerAppId'));
+        Properties.Add('appName', CustomDimensions.Get('CallerAppName'));
+        Properties.Add('appVersion', CustomDimensions.Get('CallerAppVersion'));
+        Content.Add('properties', Properties);
+        exit(Capture(PostHogEvent_FF_TSL::FeatureFlagCalled, EventDateTime, Content, ConnectionInfo))
+    end;
+
+    [NonDebuggable]
+    local procedure Capture(EventType: Enum PostHogEvent_FF_TSL; EventDateTime: DateTime; Content: JsonObject; ConnectionInfo: JsonObject): Boolean
+    var
         RequestPathTok: Label '/capture', Locked = true;
     begin
         Content.Add('event', Format(EventType));
-        Content.Add('timestamp', TypeHelper.GetCurrUTCDateTimeISO8601());
+        Content.Add('timestamp', Format(EventDateTime, 0, 9));
         exit(TrySendRequest(RequestPathTok, Content, ConnectionInfo))
     end;
 
@@ -146,7 +175,7 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
     end;
 
     [TryFunction]
-    //[NonDebuggable]
+    [NonDebuggable]
     local procedure TrySendRequest(Method: Text; Path: Text; Content: JsonObject; ConnectionInfo: JsonObject; var ResponseJsonToken: JsonToken)
     var
         HttpClient: HttpClient;

@@ -2,6 +2,7 @@ page 70254345 "Features_FF_TSL"
 {
     PageType = List;
     SourceTable = Feature_FF_TSL;
+    SourceTableTemporary = true;
     Caption = 'Features';
     UsageCategory = Lists;
     ApplicationArea = All;
@@ -29,8 +30,10 @@ page 70254345 "Features_FF_TSL"
 
                     trigger OnDrillDown()
                     begin
-                        if Rec."Learn More Url" <> '' then
-                            Hyperlink(Rec."Learn More Url");
+                        if Rec."Learn More Url" <> '' then begin
+                            FeatureMgt.CaptureLearnMore(Rec.ID);
+                            Hyperlink(Rec."Learn More Url")
+                        end
                     end;
                 }
                 field(State; FeatureState)
@@ -93,8 +96,11 @@ page 70254345 "Features_FF_TSL"
         IsConditionProvider: Boolean;
 
     trigger OnOpenPage()
+    var
+        TempFeature: Record Feature_FF_TSL temporary;
     begin
-        FeatureMgt.LoadFeatures(Rec);
+        FeatureMgt.LoadFeatures(TempFeature);
+        Rec.Copy(TempFeature, true)
     end;
 
     trigger OnAfterGetRecord()
@@ -106,11 +112,6 @@ page 70254345 "Features_FF_TSL"
         else
             FeatureState := "Feature Status"::Disabled;
         UpdateStyle()
-    end;
-
-    trigger OnNewRecord(BelowxRec: Boolean)
-    begin
-        FeatureState := "Feature Status"::Disabled
     end;
 
     local procedure UpdateStyle()

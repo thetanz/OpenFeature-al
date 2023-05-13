@@ -8,6 +8,7 @@ codeunit 70254351 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
 
     var
         FeatureMgt: Codeunit FeatureMgt_FF_TSL;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         CalculatedConditions: List of [Guid];
         ActiveConditions: List of [Guid];
         ConditionProviderCodeTxt: Label 'CONDITIONS', Locked = true;
@@ -71,7 +72,7 @@ codeunit 70254351 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
     #region IProvider
 
     [NonDebuggable]
-    internal procedure Refresh(ConnectionInfo: JsonObject)
+    internal procedure ClearCache(ConnectionInfo: JsonObject)
     begin
         ClearAll();
     end;
@@ -132,15 +133,34 @@ codeunit 70254351 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
     end;
 
     [NonDebuggable]
-    procedure GetAll(ConnectionInfo: JsonObject): Dictionary of [Code[50], Text[2048]]
+    internal procedure GetAll(ConnectionInfo: JsonObject) Features: Dictionary of [Code[50], Text]
+    var
+        Feature: Record Feature_FF_TSL;
+        FeatureDescTok: Label '[%1](%2)', Comment = '%1 - Description, %2 - "Learn More Url', Locked = true;
     begin
-
+        Feature.LoadFields(ID, Description, "Learn More Url");
+        Feature.SetRange("Provider Code", ConditionProviderCodeTxt);
+        if Feature.FindSet() then
+            repeat
+                Features.Add(Feature.ID, StrSubstNo(FeatureDescTok, Feature.Description, Feature."Learn More Url"))
+            until Feature.Next() = 0;
     end;
 
     [NonDebuggable]
-    procedure Setup(ConnectionInfo: JsonObject; ContextChangeUserSecurityID: Guid)
+    internal procedure SetContext(ConnectionInfo: JsonObject; ContextUserSecurityID: Guid)
     begin
+    end;
 
+    [NonDebuggable]
+    internal procedure CaptureEvent(ConnectionInfo: JsonObject; EventDateTime: DateTime; FeatureEvent: Enum "FeatureEvent_FF_TSL"; CustomDimensions: Dictionary of [Text, Text])
+    begin
+        case FeatureEvent of
+            "FeatureEvent_FF_TSL"::LearnMore:
+                FeatureTelemetry.LogUptake('', CustomDimensions.Get('FeatureID'), "Feature Uptake Status"::Discovered);
+            "FeatureEvent_FF_TSL"::StateCheck:
+                if CustomDimensions.Get('IsEnabled') = Format(true) then
+                    FeatureTelemetry.LogUptake('', CustomDimensions.Get('FeatureID'), "Feature Uptake Status"::Used);
+        end
     end;
 
     #endregion

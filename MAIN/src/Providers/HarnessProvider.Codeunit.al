@@ -13,30 +13,17 @@ codeunit 70254352 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
         ProjectIDTxt: Label 'ProjectID', Locked = true;
         OrganizationIDTxt: Label 'OrganizationID', Locked = true;
         EnvironmentIDTxt: Label 'EnvironmentID', Locked = true;
-        EnvironmentMatchTxt: Label 'EnvironmentMatch', Locked = true;
 
     #region Library
 
     [NonDebuggable]
-    procedure AddProvider(Code: Code[20]; AccountID: Text; APIKey: Text; ProjectID: Text; EnvironmentMatch: Enum HarnessEnvironmentMatch_FF_TSL): Boolean
+    procedure AddProvider(Code: Code[20]; AccountID: Text; APIKey: Text; ProjectID: Text; EnvironmentID: Text): Boolean
     begin
-        exit(AddProvider(Code, AccountID, APIKey, ProjectID, 'default', EnvironmentMatch))
+        exit(AddProvider(Code, AccountID, APIKey, ProjectID, 'default', EnvironmentID))
     end;
 
     [NonDebuggable]
-    procedure AddProvider(Code: Code[20]; AccountID: Text; APIKey: Text; ProjectID: Text; OrganizationID: Text; EnvironmentMatch: Enum HarnessEnvironmentMatch_FF_TSL): Boolean
-    begin
-        exit(AddProvider(Code, AccountID, APIKey, ProjectID, OrganizationID, '', Format(EnvironmentMatch)))
-    end;
-
-    [NonDebuggable]
-    procedure AddProvider(Code: Code[20]; AccountID: Text; APIKey: Text; ProjectID: Text; OrganizationID: Text; EnvironmentID: Text): Boolean
-    begin
-        exit(AddProvider(Code, AccountID, APIKey, ProjectID, OrganizationID, EnvironmentID, 'Fixed'))
-    end;
-
-    [NonDebuggable]
-    local procedure AddProvider(Code: Code[20]; AccountID: Text; APIKey: Text; ProjectID: Text; OrganizationID: Text; EnvironmentID: Text; EnvironmentMatch: text): Boolean
+    local procedure AddProvider(Code: Code[20]; AccountID: Text; APIKey: Text; ProjectID: Text; OrganizationID: Text; EnvironmentID: Text): Boolean
     var
         ConnectionInfo: JsonObject;
     begin
@@ -45,7 +32,6 @@ codeunit 70254352 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
         ConnectionInfo.Add(ProjectIDTxt, ProjectID);
         ConnectionInfo.Add(OrganizationIDTxt, OrganizationID);
         ConnectionInfo.Add(EnvironmentIDTxt, EnvironmentID);
-        ConnectionInfo.Add(EnvironmentMatchTxt, EnvironmentMatch);
         if TryGetAccount(ConnectionInfo) then
             exit(FeatureMgt.AddProvider(Code, "ProviderType_FF_TSL"::Harness, ConnectionInfo))
     end;
@@ -55,7 +41,7 @@ codeunit 70254352 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
     #region IProvider
 
     [NonDebuggable]
-    internal procedure Refresh(ConnectionInfo: JsonObject)
+    internal procedure ClearCache(ConnectionInfo: JsonObject)
     begin
         ClearAll();
     end;
@@ -67,29 +53,34 @@ codeunit 70254352 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
     end;
 
     [NonDebuggable]
-    procedure GetEnabled(ConnectionInfo: JsonObject): List of [Code[50]]
+    internal procedure GetEnabled(ConnectionInfo: JsonObject): List of [Code[50]]
     begin
         exit(GetFeatures(ConnectionInfo, true).Keys)
     end;
 
     [NonDebuggable]
-    internal procedure GetAll(ConnectionInfo: JsonObject): Dictionary of [Code[50], Text[2048]]
+    internal procedure GetAll(ConnectionInfo: JsonObject): Dictionary of [Code[50], Text]
     begin
         exit(GetFeatures(ConnectionInfo, false))
     end;
 
     [NonDebuggable]
-    procedure Setup(ConnectionInfo: JsonObject; ContextChangeUserSecurityID: Guid)
+    internal procedure SetContext(ConnectionInfo: JsonObject; ContextUserSecurityID: Guid)
     var
         User: Record User;
     begin
-        if not IsNullGuid(ContextChangeUserSecurityID) then
-            User.SetRange("User Security ID", ContextChangeUserSecurityID);
+        if not IsNullGuid(ContextUserSecurityID) then
+            User.SetRange("User Security ID", ContextUserSecurityID);
         if User.FindSet() then
             repeat
-                if not CreateOrUpdateTarget(User, ConnectionInfo) then
-                    ; // TODO: Log an event
+                CreateOrUpdateTarget(User, ConnectionInfo)
             until User.Next() = 0;
+    end;
+
+    [NonDebuggable]
+    internal procedure CaptureEvent(ConnectionInfo: JsonObject; EventDateTime: DateTime; FeatureEvent: Enum "FeatureEvent_FF_TSL"; CustomDimensions: Dictionary of [Text, Text])
+    begin
+
     end;
 
     #endregion
@@ -107,7 +98,7 @@ codeunit 70254352 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
     begin
         OrganizationID := FeatureMgt.GetValue(ConnectionInfo, OrganizationIDTxt);
         ProjectID := FeatureMgt.GetValue(ConnectionInfo, ProjectIDTxt);
-        EnvironmentID := GetEnvironmentID(ConnectionInfo);
+        EnvironmentID := FeatureMgt.GetValue(ConnectionInfo, EnvironmentIDTxt);
         Content.Add('account', FeatureMgt.GetValue(ConnectionInfo, AccountIDTxt));
         Content.Add('anonymous', true);
         Content.Add('environment', EnvironmentID);
@@ -126,7 +117,7 @@ codeunit 70254352 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
     end;
 
     [NonDebuggable]
-    local procedure GetFeatures(ConnectionInfo: JsonObject; OnlyEnabled: Boolean) Result: Dictionary of [Code[50], Text[2048]]
+    local procedure GetFeatures(ConnectionInfo: JsonObject; OnlyEnabled: Boolean) Result: Dictionary of [Code[50], Text]
     var
         ResponseJsonToken, FeaturesJsonToken, FeatureJsonToken : JsonToken;
         AdditionalQueryParams: Text;
@@ -142,7 +133,7 @@ codeunit 70254352 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
                 FeatureMgt.GetValue(ConnectionInfo, AccountIDTxt),
                 FeatureMgt.GetValue(ConnectionInfo, OrganizationIDTxt),
                 FeatureMgt.GetValue(ConnectionInfo, ProjectIDTxt),
-                GetEnvironmentID(ConnectionInfo),
+                FeatureMgt.GetValue(ConnectionInfo, EnvironmentIDTxt),
                 FeatureMgt.GetCurrentUserContextID()
             ) + AdditionalQueryParams,
             ConnectionInfo,
@@ -152,7 +143,7 @@ codeunit 70254352 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
                 if (not OnlyEnabled) or (FeatureMgt.GetValue(FeatureJsonToken.AsObject(), 'evaluation') = 'true') then
                     Result.Add(
                         CopyStr(FeatureMgt.GetValue(FeatureJsonToken.AsObject(), 'name'), 1, 50),
-                        CopyStr(FeatureMgt.GetValue(FeatureJsonToken.AsObject(), 'description'), 1, 2048)
+                        FeatureMgt.GetValue(FeatureJsonToken.AsObject(), 'description')
                     )
     end;
 
@@ -241,25 +232,6 @@ codeunit 70254352 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
                     Error(FailedToParseErr);
         if Method = 'GET' then
             Cache.Set(CacheKey, ResponseJsonToken)
-    end;
-
-    local procedure GetEnvironmentID(ConnectionInfo: JsonObject): Text
-    var
-        EnvironmentInformation: Codeunit "Environment Information";
-        EnvironmentMatch: Text;
-    begin
-        EnvironmentMatch := FeatureMgt.GetValue(ConnectionInfo, EnvironmentMatchTxt);
-        case EnvironmentMatch of
-            'Fixed':
-                exit(FeatureMgt.GetValue(ConnectionInfo, EnvironmentIDTxt));
-            Format("HarnessEnvironmentMatch_FF_TSL"::EnvironmentName):
-                exit(EnvironmentInformation.GetEnvironmentName());
-            Format("HarnessEnvironmentMatch_FF_TSL"::EnvironmentType):
-                if (EnvironmentInformation.IsProduction()) then
-                    exit('Production')
-                else
-                    exit('Sandbox');
-        end
     end;
 
     #endregion

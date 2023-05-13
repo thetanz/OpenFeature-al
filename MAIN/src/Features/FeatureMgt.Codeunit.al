@@ -10,6 +10,7 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
         tabledata "All Profile" = R;
 
     var
+        TempGlobalFeature: Record Feature_FF_TSL temporary;
         TempUserSettings: Record "User Settings" temporary;
         DefaultProfileID: Code[30];
 
@@ -25,6 +26,14 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
     [NonDebuggable]
     internal procedure AddProvider(Code: Code[20]; Type: Enum ProviderType_FF_TSL; ConnectionInfo: JsonObject) Result: Boolean
     var
+        CaptureEvents: JsonObject;
+    begin
+        exit(AddProvider(Code, Type, ConnectionInfo, CaptureEvents))
+    end;
+
+    [NonDebuggable]
+    internal procedure AddProvider(Code: Code[20]; Type: Enum ProviderType_FF_TSL; ConnectionInfo: JsonObject; CaptureEvents: JsonObject) Result: Boolean
+    var
         Provider: Record Provider_FF_TSL;
         IProvider: Interface IProvider_FF_TSL;
         NullGuid: Guid;
@@ -33,60 +42,80 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
         Provider.Code := Code;
         Provider.Type := Type;
         Provider.ConnectionInfo(ConnectionInfo);
-        IProvider := Type;
+        Provider.CaptureEvents(CaptureEvents);
         Result := Provider.Insert(true);
         if not Result then
             Result := Provider.Modify(true);
-        if Result then
-            exit(TrySetup(IProvider, ConnectionInfo, NullGuid))
+        if Result then begin
+            IProvider := Type;
+            exit(TrySetContext(IProvider, ConnectionInfo, NullGuid))
+        end
     end;
 
     [TryFunction]
     [NonDebuggable]
-    local procedure TrySetup(IProvider: Interface IProvider_FF_TSL; ConnectionInfo: JsonObject; ContextChangeUserSecurityID: Guid)
+    local procedure TrySetContext(IProvider: Interface IProvider_FF_TSL; ConnectionInfo: JsonObject; ContextUserSecurityID: Guid)
     begin
-        IProvider.Setup(ConnectionInfo, ContextChangeUserSecurityID)
+        IProvider.SetContext(ConnectionInfo, ContextUserSecurityID)
     end;
 
-    internal procedure AddFeature(FeatureID: Code[50]; Description: Text[2048]; ProviderCode: Code[20]): Boolean
+    internal procedure AddFeature(FeatureID: Code[50]; Description: Text; ProviderCode: Code[20]): Boolean
     var
         Feature: Record Feature_FF_TSL;
     begin
         exit(AddFeature(Feature, FeatureID, Description, ProviderCode))
     end;
 
-    local procedure AddFeature(var Feature: Record Feature_FF_TSL; FeatureID: Code[50]; Description: Text[2048]; ProviderCode: Code[20]) Result: Boolean
+    local procedure AddFeature(var Feature: Record Feature_FF_TSL; FeatureID: Code[50]; Description: Text; ProviderCode: Code[20]) Result: Boolean
     begin
         Feature.Init();
         Feature.Validate(ID, FeatureID);
-        Feature.Validate(Description, Description);
+        Feature.SetDescription(Description);
         Feature.Validate("Provider Code", ProviderCode);
         Result := Feature.Insert(true);
         if not Result then
             exit(Feature.Modify(true))
     end;
 
-    internal procedure LoadFeatures(var Feature: Record Feature_FF_TSL)
+    internal procedure LoadFeatures(var TempFeature: Record Feature_FF_TSL temporary)
     var
         Provider: Record Provider_FF_TSL;
-        Features: Dictionary of [Code[50], Text[2048]];
+        Features: Dictionary of [Code[50], Text];
+        CustomDimensions: Dictionary of [Text, Text];
         IProvider: Interface IProvider_FF_TSL;
         Index: Integer;
+        AlreadyProvidedEventMessTok: Label '%1.%2 feature failed to setup: Already provided by %3.', Comment = '%1 - Provider Code, %2 - Feature ID, %3 - Provider Code', Locked = true;
     begin
-        if Provider.FindSet() then
-            repeat
-                IProvider := Provider.Type;
-                if TryGetAll(IProvider, Provider.ConnectionInfo(), Features) then
-                    for Index := 1 to Features.Count() do
-                        AddFeature(Features.Keys.Get(Index), Features.Values.Get(Index), Provider.Code)
-                else
-                    ; // TODO: Notification about broken provider
-            until Provider.Next() = 0;
+        if TempGlobalFeature.IsEmpty() then
+            if Provider.FindSet() then
+                repeat
+                    IProvider := Provider.Type;
+                    if TryGetAll(IProvider, Provider.ConnectionInfo(), Features) then
+                        for Index := 1 to Features.Count() do begin
+                            TempGlobalFeature.Init();
+                            TempGlobalFeature.Validate(ID, Features.Keys.Get(Index));
+                            TempGlobalFeature.SetDescription(Features.Values.Get(Index));
+                            TempGlobalFeature.Validate("Provider Code", Provider.Code);
+                            if not TempGlobalFeature.Insert() then
+                                if TempGlobalFeature.Get(TempGlobalFeature.ID) then
+                                    LogMessage(
+                                        'TSLFFP01',
+                                        StrSubstNo(AlreadyProvidedEventMessTok, Provider.Code, TempGlobalFeature.ID, TempGlobalFeature."Provider Code"),
+                                        Verbosity::Error,
+                                        DataClassification::SystemMetadata,
+                                        TelemetryScope::All,
+                                        CustomDimensions
+                                    )
+                        end
+                    else
+                        LogProviderFailed(Provider.Code, 'GetAll');
+                until Provider.Next() = 0;
+        TempFeature.Copy(TempGlobalFeature, true);
     end;
 
     [TryFunction]
     [NonDebuggable]
-    local procedure TryGetAll(IProvider: Interface IProvider_FF_TSL; ConnectionInfo: JsonObject; var Features: Dictionary of [Code[50], Text[2048]])
+    local procedure TryGetAll(IProvider: Interface IProvider_FF_TSL; ConnectionInfo: JsonObject; var Features: Dictionary of [Code[50], Text])
     begin
         Features := IProvider.GetAll(ConnectionInfo)
     end;
@@ -95,12 +124,16 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
 
     #region ApplicationArea
 
-    procedure IsEnabled(FeatureID: Code[50]): Boolean
+    procedure IsEnabled(FeatureID: Code[50]) Enabled: Boolean
+    var
+        CallerModuleInfo: ModuleInfo;
     begin
-        exit(StrPos(ApplicationArea(), '#' + FeatureID + ',') <> 0)
+        Enabled := StrPos(ApplicationArea(), '#' + FeatureID + ',') <> 0;
+        NavApp.GetCallerModuleInfo(CallerModuleInfo);
+        CaptureStateCheck(FeatureID, Enabled, CallerModuleInfo)
     end;
 
-    procedure RefreshApplicationArea(RefreshProviders: Boolean)
+    internal procedure RefreshApplicationArea(RefreshProviders: Boolean)
     var
         Provider: Record Provider_FF_TSL;
         IProvider: Interface IProvider_FF_TSL;
@@ -113,13 +146,13 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
             repeat
                 IProvider := Provider.Type;
                 if RefreshProviders then
-                    IProvider.Refresh(Provider.ConnectionInfo());
+                    IProvider.ClearCache(Provider.ConnectionInfo());
                 Clear(FeatureIDs);
                 if TryGetEnabled(IProvider, Provider.ConnectionInfo(), FeatureIDs) then
                     foreach FeatureID in FeatureIDs do
                         TextBuilderVar.Append('#' + FeatureID + ',')
                 else
-                    ; // TODO: notification about broken provider
+                    LogProviderFailed(Provider.Code, 'GetEnabled');
             until Provider.Next() = 0;
         ApplicationArea(GetApplicationAreaSetup() + ',' + TextBuilderVar.ToText() + FeatureFunctionalityKeyLbl);
     end;
@@ -155,12 +188,12 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
 
     #region Context
 
-    procedure GetCurrentUserContextID(): Text
+    internal procedure GetCurrentUserContextID(): Text
     begin
         exit(GetUserContextID(UserSecurityId()))
     end;
 
-    procedure GetUserContextID(UserSecurityID: Guid): Text
+    internal procedure GetUserContextID(UserSecurityID: Guid): Text
     var
         EnvironmentInformation: Codeunit "Environment Information";
         CryptographyManagement: Codeunit "Cryptography Management";
@@ -169,11 +202,20 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
         exit(CryptographyManagement.GenerateHash(UserSecurityID + EnvironmentInformation.GetEnvironmentName(), HashAlgorithmType::MD5).Remove(16))
     end;
 
-    procedure GetUserContext(User: Record User; var ContextAttributes: JsonObject) ContextID: Text
+    internal procedure GetCurrentUserContext(var ContextAttributes: JsonObject): Text
+    var
+        User: Record User;
+    begin
+        User.Get(UserSecurityId());
+        exit(GetUserContext(User, ContextAttributes))
+    end;
+
+    internal procedure GetUserContext(User: Record User; var ContextAttributes: JsonObject) ContextID: Text
     var
         UserPersonalization: Record "User Personalization";
         AllProfile: Record "All Profile";
         EnvironmentInformation: Codeunit "Environment Information";
+        ApplicationSystemConstants: Codeunit "Application System Constants";
         UserSettings: Codeunit "User Settings";
         EmailDomain: Text;
     begin
@@ -183,9 +225,10 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
         ContextAttributes.Add('emailDomain', EmailDomain);
         ContextAttributes.Add('IsProdEnv', EnvironmentInformation.IsProduction());
         ContextAttributes.Add('IsSandboxEnv', EnvironmentInformation.IsSandbox());
-        ContextAttributes.Add('IsSaaSEnv', EnvironmentInformation.IsSaaS());
+        ContextAttributes.Add('IsSaaSEnv', EnvironmentInformation.IsSaaSInfrastructure());
         ContextAttributes.Add('envName', EnvironmentInformation.GetEnvironmentName());
         ContextAttributes.Add('appFamily', EnvironmentInformation.GetApplicationFamily());
+        ContextAttributes.Add('platformVersion', ApplicationSystemConstants.PlatformProductVersion());
         if TempUserSettings."User Security ID" <> User."User Security ID" then begin
             Clear(TempUserSettings);
             UserPersonalization.SetRange("User SID", User."User Security ID");
@@ -211,6 +254,77 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
 
     #endregion
 
+    #region Telemetry
+
+    internal procedure CaptureLearnMore(FeatureID: Code[50])
+    var
+        CustomDimensions: Dictionary of [Text, Text];
+    begin
+        CaptureEvent(FeatureID, "FeatureEvent_FF_TSL"::LearnMore, CustomDimensions)
+    end;
+
+    local procedure CaptureStateCheck(FeatureID: Code[50]; CheckResult: Boolean; CallerModuleInfo: ModuleInfo)
+    var
+        CurrentModuleInfo: ModuleInfo;
+        CustomDimensions: Dictionary of [Text, Text];
+    begin
+        NavApp.GetCurrentModuleInfo(CurrentModuleInfo);
+        if CallerModuleInfo.Id() <> CurrentModuleInfo.Id then begin
+            CustomDimensions.Add('IsEnabled', Format(CheckResult, 0, 9));
+            CustomDimensions.Add('CallerAppId', Format(CallerModuleInfo.Id, 0, 4).ToLower());
+            CustomDimensions.Add('CallerAppName', CallerModuleInfo.Name);
+            CustomDimensions.Add('CallerAppVersion', Format(CallerModuleInfo.AppVersion));
+            CaptureEvent(FeatureID, "FeatureEvent_FF_TSL"::StateCheck, CustomDimensions)
+        end
+    end;
+
+    local procedure CaptureEvent(FeatureID: Code[50]; FeatureEvent: Enum "FeatureEvent_FF_TSL"; CustomDimensions: Dictionary of [Text, Text])
+    var
+        TempFeature: Record Feature_FF_TSL temporary;
+        Provider: Record Provider_FF_TSL;
+        CaptureEventJsonToken: JsonToken;
+        IProvider: Interface IProvider_FF_TSL;
+        EventDateTime: DateTime;
+    begin
+        EventDateTime := CurrentDateTime();
+        LoadFeatures(TempFeature);
+        if TempFeature.Get(FeatureID) then begin
+            Provider := TempFeature.GetProvider();
+            if Provider.CaptureEvents().Get(Format(FeatureEvent), CaptureEventJsonToken) then begin
+                CustomDimensions.Add('FeatureID', FeatureID);
+                IProvider := Provider.Type;
+                if CaptureEventJsonToken.AsValue().AsBoolean() then begin
+                    // TODO: Captrue event in backgorund
+                end else
+                    TryCaptureEvent(IProvider, Provider.ConnectionInfo(), EventDateTime, FeatureEvent, CustomDimensions);
+            end
+        end
+    end;
+
+    [TryFunction]
+    [NonDebuggable]
+    local procedure TryCaptureEvent(IProvider: Interface IProvider_FF_TSL; ConnectionInfo: JsonObject; EventDateTime: DateTime; FeatureEvent: Enum FeatureEvent_FF_TSL; CustomDimensions: Dictionary of [Text, Text])
+    begin
+        IProvider.CaptureEvent(ConnectionInfo, EventDateTime, FeatureEvent, CustomDimensions);
+    end;
+
+    local procedure LogProviderFailed(ProviderCode: Code[20]; Method: Text)
+    var
+        CustomDimensions: Dictionary of [Text, Text];
+        ProviderFailedMessTok: Label '%1 provider failed to execute %2 method: %3', Comment = '%1 - Provider Code, %2 - Method Came', Locked = true;
+    begin
+        LogMessage(
+            'TSLFFP00',
+            StrSubstNo(ProviderFailedMessTok, ProviderCode, Method, GetLastErrorText()),
+            Verbosity::Error,
+            DataClassification::SystemMetadata,
+            TelemetryScope::All,
+            CustomDimensions
+        )
+    end;
+
+    #endregion
+
     #region Subscribers
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', true, true)]
@@ -230,8 +344,8 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
             if Provider.FindSet() then
                 repeat
                     IProvider := Provider.Type;
-                    if not TrySetup(IProvider, Provider.ConnectionInfo(), NewSettings."User Security ID") then
-                        ; // TODO: Notification about broken provider
+                    if not TrySetContext(IProvider, Provider.ConnectionInfo(), NewSettings."User Security ID") then
+                        LogProviderFailed(Provider.Code, 'SetContext');
                 until Provider.Next() = 0;
             Clear(TempUserSettings);
         end

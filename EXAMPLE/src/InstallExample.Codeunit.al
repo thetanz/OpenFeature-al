@@ -1,11 +1,11 @@
-codeunit 50100 "InstallExample_FF_TSL"
+codeunit 50100 "InstallExample"
 {
     Subtype = Install;
     Permissions =
         tabledata User = R;
 
     var
-        SecretProvider: Codeunit HandcodeSecretProvider_FF_TSL;
+        SecretProvider: Codeunit HandcodeSecretProvider;
         ConditionProvider: Codeunit ConditionProvider_FF_TSL;
         PostHogProvider: Codeunit PostHogProvider_FF_TSL;
         HarnessProvider: Codeunit HarnessProvider_FF_TSL;
@@ -24,7 +24,6 @@ codeunit 50100 "InstallExample_FF_TSL"
     begin
         // Provider: Conditions
         AddStripeFeatureWithConditionProvider();
-        AddKiaOraFeatureWithConditionProvider();
 
         // Provider: PostHog
         AddPostHogProvider();
@@ -34,20 +33,14 @@ codeunit 50100 "InstallExample_FF_TSL"
     end;
 
     local procedure AddStripeFeatureWithConditionProvider()
-    begin
-        // Add new feature without conditions. Admin user should enable it manually.
-        ConditionProvider.AddFeature('STRIPE', 'Enable users to define customer''s Stripe ID');
-    end;
-
-    local procedure AddKiaOraFeatureWithConditionProvider()
     var
         User: Record User;
     begin
         // Add new feature with condition to be enabled only for users with email ending with '.nz'.
-        ConditionProvider.AddFeature('KIAORA', '[Enable user to send welcome email to New Zealand customer](https://feedback.365extensions.com/bc/p/unable-to-delete-company)');
+        ConditionProvider.AddFeature('Stripe', '[Enables Stripe Integration](https://example.com/StripeIntegrate)');
         User.SetFilter("Contact Email", '*.nz');
-        ConditionProvider.AddCondition('NZUSER', ConditionFunction_FF_TSL::UserFilter, User.GetView());
-        ConditionProvider.AddFeatureCondition('KIAORA', 'NZUSER');
+        ConditionProvider.AddCondition('NZUserOnly', ConditionFunction_FF_TSL::UserFilter, User.GetView());
+        ConditionProvider.AddFeatureCondition('Stripe', 'NZUserOnly');
     end;
 
     local procedure AddPostHogProvider()
@@ -64,14 +57,15 @@ codeunit 50100 "InstallExample_FF_TSL"
 
     local procedure AddHarnessProvider()
     var
-        AccountID, APIKey, ProjectID : Text;
+        AccountID, APIKey, ProjectID, EnvironmentID : Text;
     begin
         // App Harness provider. It will load all available features automatically.
         ISecretProvider := SecretProvider;
         ISecretProvider.GetSecret('HarnessAccountID', AccountID);
         ISecretProvider.GetSecret('HarnessAPIKey', APIKey);
         ProjectID := 'default_project';
-        if not HarnessProvider.AddProvider('THETA_HARNESS', AccountID, APIKey, ProjectID, HarnessEnvironmentMatch_FF_TSL::EnvironmentType) then
+        EnvironmentID := 'Sandbox';
+        if not HarnessProvider.AddProvider('THETA_HARNESS', AccountID, APIKey, ProjectID, EnvironmentID) then
             Error(GetLastErrorText());
     end;
 }
