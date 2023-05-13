@@ -52,7 +52,7 @@ field(StripeID; Rec.StripeID)
 ### For Code
 Wrap feature-related code block into a condition. It's recommended to use `IsEnabled` function from `FeatureMgt_FF_TSL` codeunit. Example: 
 ```javascript
-if FeatureMgt.IsEnabled('StripeIntegration') then 
+if FeatureMgt.IsEnabled('Stripe') then 
      // Feature 'Stripe' is enabled
      StripeClient.CreateInvoice(SalesHeader);
 ```
@@ -62,7 +62,7 @@ OpenFeature extension uses `Providers` to manage features as well as their state
 `ConditionProvider_FF_TSL` codeunit enables any extension to add features with conditions. Example: 
 ```javascript
 // Add new feature with condition to be enabled only for users with email ending with '.nz'.
-ConditionProvider.AddFeature('Stripe', '[Enables Stripe Integration](https://example.com/StripeIntegrate)');
+ConditionProvider.AddFeature('Stripe', '[Enables Stripe Integration](https://example.com/Stripe)');
 User.SetFilter("Contact Email", '*.nz');
 ConditionProvider.AddCondition('NZUserOnly', ConditionFunction_FF_TSL::UserFilter, User.GetView());
 ConditionProvider.AddFeatureCondition('Stripe', 'NZUserOnly');
