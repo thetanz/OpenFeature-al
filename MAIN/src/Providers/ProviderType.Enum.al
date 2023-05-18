@@ -14,9 +14,4 @@ enum 58536 "ProviderType_FF_TSL" implements IProvider_FF_TSL
         Caption = 'PostHog';
         Implementation = IProvider_FF_TSL = "PostHogProvider_FF_TSL";
     }
-    value(2; Harness)
-    {
-        Caption = 'Harness';
-        Implementation = IProvider_FF_TSL = "HarnessProvider_FF_TSL";
-    }
 }
