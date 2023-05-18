@@ -68,7 +68,7 @@ ConditionProvider.AddCondition('NZUserOnly', ConditionFunction_FF_TSL::UserFilte
 ConditionProvider.AddFeatureCondition('Stripe', 'NZUserOnly');
 ```
 As introduced, conditions could be modified by any user with `Feature Mgt. - Admin` permission set assigned.
-### PostHog Provider (PRODUCTION)
+### PostHog Provider (EXPERIMENTAL)
 `PostHogProvider_FF_TSL` codeunit enables integration with [PostHog Feature Flags](https://posthog.com/feature-flags) service which will mirror enabled features within your Business Central environment. Setup example:
 ```javascript
 // App PostHog provider. It will load all available features automatically.
