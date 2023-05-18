@@ -8,7 +8,6 @@ permissionsetextension 70254345 "Basic_FF_TSL" extends "System App - Basic"
         codeunit CompanyFilterCondFunc_FF_TSL = X,
         codeunit SecGroupFilterCondFunc_FF_TSL = X,
         codeunit ConditionProvider_FF_TSL = X,
-        codeunit HarnessProvider_FF_TSL = X,
         codeunit PostHogProvider_FF_TSL = X,
         query ConditionsInUse_FF_TSL = X,
         query ValidFeatures_FF_TSL = X,
