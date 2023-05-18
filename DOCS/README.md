@@ -78,17 +78,6 @@ ISecretProvider.GetSecret('PostHogProjectID', ProjectID);
 if not PostHogProvider.AddProvider('THETA_POSTHOG', PersonalAPIKey, ProjectID) then
      Error(GetLastErrorText());
 ```
-### Harness Provider (EXPERIMENTAL)
-`HarnessProvider_FF_TSL` codeunit enables integration with [Harness Feature Flags](https://www.harness.io/products/feature-flags) service which will mirror enabled features within your Business Central environment. Setup example:
-```javascript
-// App Harness provider. It will load all available features automatically.
-ISecretProvider := SecretProvider;
-ISecretProvider.GetSecret('HarnessAccountID', AccountID);
-ISecretProvider.GetSecret('HarnessAPIKey', APIKey);
-ProjectID := 'default_project';
-EnvironmentID := 'Sandbox';
-HarnessProvider.AddProvider('THETA_HARNESS', AccountID, APIKey, ProjectID, EnvironmentID);
-```
 ## Roadmap
 See the [open issues](https://github.com/thetanz/OpenFeature-al/issues) for a list of proposed features (and known issues).
 ## Contributing
