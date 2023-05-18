@@ -23,7 +23,8 @@ codeunit 58653 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
         ConnectionInfo.Add(PersonalAPIKeyTxt, PersonalAPIKey);
         ConnectionInfo.Add(ProjectIDKeyTxt, ProjectID);
         if GetProject(ConnectionInfo) then begin
-            CaptureEvents.Add(Format("FeatureEvent_FF_TSL"::StateCheck), false);
+            CaptureEvents.Add(Format("FeatureEvent_FF_TSL"::IsEnabled), false);
+            CaptureEvents.Add(Format("FeatureEvent_FF_TSL"::IsDisabled), false);
             exit(FeatureMgt.AddProvider(Code, "ProviderType_FF_TSL"::PostHog, ConnectionInfo, CaptureEvents))
         end
     end;
@@ -71,9 +72,11 @@ codeunit 58653 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
     internal procedure CaptureEvent(ConnectionInfo: JsonObject; EventDateTime: DateTime; FeatureEvent: Enum "FeatureEvent_FF_TSL"; CustomDimensions: Dictionary of [Text, Text])
     begin
         case FeatureEvent of
-            "FeatureEvent_FF_TSL"::StateCheck:
-                FeatureFlagCalled(EventDateTime, CustomDimensions, ConnectionInfo);
-        end
+            "FeatureEvent_FF_TSL"::IsEnabled:
+                FeatureFlagCalled(EventDateTime, CustomDimensions, true, ConnectionInfo);
+            "FeatureEvent_FF_TSL"::IsDisabled:
+                FeatureFlagCalled(EventDateTime, CustomDimensions, false, ConnectionInfo);
+        end;
     end;
 
     #endregion
@@ -125,12 +128,12 @@ codeunit 58653 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
     end;
 
     [NonDebuggable]
-    local procedure FeatureFlagCalled(EventDateTime: DateTime; CustomDimensions: Dictionary of [Text, Text]; ConnectionInfo: JsonObject): Boolean
+    local procedure FeatureFlagCalled(EventDateTime: DateTime; CustomDimensions: Dictionary of [Text, Text]; Enabled: Boolean; ConnectionInfo: JsonObject): Boolean
     var
         Content, Properties : JsonObject;
     begin
         Properties.Add('$feature_flag', CustomDimensions.Get('FeatureID'));
-        Properties.Add('$feature_flag_response', CustomDimensions.Get('IsEnabled'));
+        Properties.Add('$feature_flag_response', Format(Enabled, 0, 9));
         Properties.Add('appId', CustomDimensions.Get('CallerAppId'));
         Properties.Add('appName', CustomDimensions.Get('CallerAppName'));
         Properties.Add('appVersion', CustomDimensions.Get('CallerAppVersion'));

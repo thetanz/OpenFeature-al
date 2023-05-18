@@ -263,18 +263,20 @@ codeunit 58537 "FeatureMgt_FF_TSL"
         CaptureEvent(FeatureID, "FeatureEvent_FF_TSL"::LearnMore, CustomDimensions)
     end;
 
-    local procedure CaptureStateCheck(FeatureID: Code[50]; CheckResult: Boolean; CallerModuleInfo: ModuleInfo)
+    local procedure CaptureStateCheck(FeatureID: Code[50]; Enabled: Boolean; CallerModuleInfo: ModuleInfo)
     var
         CurrentModuleInfo: ModuleInfo;
         CustomDimensions: Dictionary of [Text, Text];
     begin
         NavApp.GetCurrentModuleInfo(CurrentModuleInfo);
         if CallerModuleInfo.Id() <> CurrentModuleInfo.Id then begin
-            CustomDimensions.Add('IsEnabled', Format(CheckResult, 0, 9));
             CustomDimensions.Add('CallerAppId', Format(CallerModuleInfo.Id, 0, 4).ToLower());
             CustomDimensions.Add('CallerAppName', CallerModuleInfo.Name);
             CustomDimensions.Add('CallerAppVersion', Format(CallerModuleInfo.AppVersion));
-            CaptureEvent(FeatureID, "FeatureEvent_FF_TSL"::StateCheck, CustomDimensions)
+            if Enabled then
+                CaptureEvent(FeatureID, "FeatureEvent_FF_TSL"::IsEnabled, CustomDimensions)
+            else
+                CaptureEvent(FeatureID, "FeatureEvent_FF_TSL"::IsDisabled, CustomDimensions)
         end
     end;
 
@@ -286,6 +288,7 @@ codeunit 58537 "FeatureMgt_FF_TSL"
         IProvider: Interface IProvider_FF_TSL;
         EventDateTime: DateTime;
     begin
+        // TODO: Need to find a way to keep capture on low cost. Ideally offload from user's runtime
         EventDateTime := CurrentDateTime();
         LoadFeatures(TempFeature);
         if TempFeature.Get(FeatureID) then begin

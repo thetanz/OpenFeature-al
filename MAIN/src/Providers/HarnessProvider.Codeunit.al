@@ -126,7 +126,7 @@ codeunit 58652 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
     begin
         if OnlyEnabled then
             AdditionalQueryParams := OnlyEnabledTok;
-        TrySendRequest(
+        if TrySendRequest(
             'GET',
             StrSubstNo(
                 FeaturesRequestPathTok,
@@ -137,14 +137,15 @@ codeunit 58652 "HarnessProvider_FF_TSL" implements IProvider_FF_TSL
                 FeatureMgt.GetCurrentUserContextID()
             ) + AdditionalQueryParams,
             ConnectionInfo,
-            ResponseJsonToken);
-        if ResponseJsonToken.SelectToken('$.features', FeaturesJsonToken) then
-            foreach FeatureJsonToken in FeaturesJsonToken.AsArray() do
-                if (not OnlyEnabled) or (FeatureMgt.GetValue(FeatureJsonToken.AsObject(), 'evaluation') = 'true') then
-                    Result.Add(
-                        CopyStr(FeatureMgt.GetValue(FeatureJsonToken.AsObject(), 'name'), 1, 50),
-                        FeatureMgt.GetValue(FeatureJsonToken.AsObject(), 'description')
-                    )
+            ResponseJsonToken)
+        then
+            if ResponseJsonToken.SelectToken('$.features', FeaturesJsonToken) then
+                foreach FeatureJsonToken in FeaturesJsonToken.AsArray() do
+                    if (not OnlyEnabled) or (FeatureMgt.GetValue(FeatureJsonToken.AsObject(), 'evaluation') = 'true') then
+                        Result.Add(
+                            CopyStr(FeatureMgt.GetValue(FeatureJsonToken.AsObject(), 'name'), 1, 50),
+                            FeatureMgt.GetValue(FeatureJsonToken.AsObject(), 'description')
+                        )
     end;
 
     [TryFunction]

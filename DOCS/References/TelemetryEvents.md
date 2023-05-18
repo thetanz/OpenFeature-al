@@ -5,3 +5,4 @@ The following tables list the Ids of Business Central telemetry trace events tha
 |----------|-----------|-----------------------------------------------------------------------------------------|
 | TSLFFP00 | Providers | {ProviderCode} provider failed to execute {method} method: {ErrorText}                  |
 | TSLFFP01 | Providers | {ProviderCode}.{FeatureID} feature failed to setup: Already provided by {ProviderCode}. |
+| TSLFFC00 | Condition | `Uptake Event`                                                                          |
