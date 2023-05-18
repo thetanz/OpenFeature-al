@@ -156,10 +156,9 @@ codeunit 70254351 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
     begin
         case FeatureEvent of
             "FeatureEvent_FF_TSL"::LearnMore:
-                FeatureTelemetry.LogUptake('', CustomDimensions.Get('FeatureID'), "Feature Uptake Status"::Discovered);
-            "FeatureEvent_FF_TSL"::StateCheck:
-                if CustomDimensions.Get('IsEnabled') = Format(true) then
-                    FeatureTelemetry.LogUptake('', CustomDimensions.Get('FeatureID'), "Feature Uptake Status"::Used);
+                FeatureTelemetry.LogUptake('TSLFFC00', CustomDimensions.Get('FeatureID'), "Feature Uptake Status"::Discovered);
+            "FeatureEvent_FF_TSL"::IsEnabled:
+                FeatureTelemetry.LogUptake('TSLFFC00', CustomDimensions.Get('FeatureID'), "Feature Uptake Status"::Used);
         end
     end;
 
@@ -212,51 +211,6 @@ codeunit 70254351 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
         FeatureCondition.SetRange(FeatureID, Rec.ID);
         FeatureCondition.DeleteAll()
     end;
-
-    /*
-    [EventSubscriber(ObjectType::Table, Database::Condition_FF_TSL, 'OnAfterInsertEvent', '', true, true)]
-    local procedure OnAfterInsertCondition(var Rec: Record Condition_FF_TSL; RunTrigger: Boolean)
-    begin
-        if RunTrigger then
-            RecalculateCondition(Rec, false)
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::Condition_FF_TSL, 'OnAfterValidateEvent', 'Argument', true, true)]
-    local procedure OnAfterValidateConditionArgument(var Rec: Record Condition_FF_TSL; var xRec: Record Condition_FF_TSL; CurrFieldNo: Integer)
-    begin
-        if Rec.Argument <> xRec.Argument then begin
-            RecalculateCondition(Rec, false);
-            RefreshApplicationArea(false)
-        end
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::Condition_FF_TSL, 'OnAfterModifyEvent', '', true, true)]
-    local procedure OnAfterModifyCondition(var Rec: Record Condition_FF_TSL; var xRec: Record Condition_FF_TSL; RunTrigger: Boolean)
-    begin
-        if RunTrigger then begin
-            RecalculateCondition(Rec, false);
-            RefreshApplicationArea(false)
-        end
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::Condition_FF_TSL, 'OnAfterRenameEvent', '', true, true)]
-    local procedure OnAfterRenameCondition(var Rec: Record Condition_FF_TSL; var xRec: Record Condition_FF_TSL; RunTrigger: Boolean)
-    begin
-        if RunTrigger then begin
-            RecalculateCondition(xRec, true);
-            RecalculateCondition(Rec, false)
-        end
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::Condition_FF_TSL, 'OnAfterDeleteEvent', '', true, true)]
-    local procedure OnAfterDeleteCondition(var Rec: Record Condition_FF_TSL; RunTrigger: Boolean)
-    begin
-        if RunTrigger then begin
-            RecalculateCondition(Rec, true);
-            RefreshApplicationArea(false)
-        end;
-    end;
-    */
 
     [EventSubscriber(ObjectType::Table, Database::FeatureCondition_FF_TSL, 'OnAfterInsertEvent', '', true, true)]
     local procedure OnAfterInsertFeatureCondition(var Rec: Record FeatureCondition_FF_TSL; RunTrigger: Boolean)
