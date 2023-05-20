@@ -4,7 +4,10 @@
 </p>
 <h2 align="center">OpenFeature for AL</h2>
 <p align="center">
-     <a href="https://github.com/thetanz/OpenFeature-al/commits/master">
+    <a href="https://github.com/thetanz/OpenFeature-al/releases/latest"> 
+    <img alt="GitHub latest release" src="https://img.shields.io/github/v/release/thetanz/OpenFeature-al">
+    </a>
+    <a href="https://github.com/thetanz/OpenFeature-al/commits/master">
     <img src="https://img.shields.io/github/last-commit/thetanz/OpenFeature-al.svg?logo=github&logoColor=white"
          alt="GitHub last commit" />
     </a>
@@ -16,7 +19,8 @@
     <img src="https://img.shields.io/github/issues-pr-raw/thetanz/OpenFeature-al.svg?logo=github&logoColor=white"
          alt="GitHub pull requests" />
     </a>
-    <a href="https://twitter.com/intent/tweet?text=Try Feature Flags for AL:&url=https%3A%2F%2Fgithub.com%2Fthetanz%2FOpenFeature-al">
+    <img alt="GitHub" src="https://img.shields.io/github/license/thetanz/OpenFeature-al"> 
+    <a href="https://twitter.com/intent/tweet?text=Try OpenFeature for AL:&url=https%3A%2F%2Fgithub.com%2Fthetanz%2FOpenFeature-al">
     <img src="https://img.shields.io/twitter/url/https/github.com/thetanz/OpenFeature-al.svg?logo=twitter"
          alt="GitHub tweet" />
     </a>
