@@ -8,7 +8,6 @@ codeunit 50100 "InstallExample"
         SecretProvider: Codeunit HandcodeSecretProvider;
         ConditionProvider: Codeunit ConditionProvider_FF_TSL;
         PostHogProvider: Codeunit PostHogProvider_FF_TSL;
-        HarnessProvider: Codeunit HarnessProvider_FF_TSL;
         ISecretProvider: Interface "Secret Provider";
 
     trigger OnInstallAppPerCompany()
@@ -27,9 +26,6 @@ codeunit 50100 "InstallExample"
 
         // Provider: PostHog
         AddPostHogProvider();
-
-        // Provider: Harness
-        AddHarnessProvider();
     end;
 
     local procedure AddStripeFeatureWithConditionProvider()
@@ -52,20 +48,6 @@ codeunit 50100 "InstallExample"
         ISecretProvider.GetSecret('PostHogPersonalAPIKey', PersonalAPIKey);
         ISecretProvider.GetSecret('PostHogProjectID', ProjectID);
         if not PostHogProvider.AddProvider('THETA_POSTHOG', PersonalAPIKey, ProjectID) then
-            Error(GetLastErrorText());
-    end;
-
-    local procedure AddHarnessProvider()
-    var
-        AccountID, APIKey, ProjectID, EnvironmentID : Text;
-    begin
-        // App Harness provider. It will load all available features automatically.
-        ISecretProvider := SecretProvider;
-        ISecretProvider.GetSecret('HarnessAccountID', AccountID);
-        ISecretProvider.GetSecret('HarnessAPIKey', APIKey);
-        ProjectID := 'default_project';
-        EnvironmentID := 'Sandbox';
-        if not HarnessProvider.AddProvider('THETA_HARNESS', AccountID, APIKey, ProjectID, EnvironmentID) then
             Error(GetLastErrorText());
     end;
 }
