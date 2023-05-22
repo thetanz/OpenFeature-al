@@ -99,7 +99,7 @@ page 58535 "Features_FF_TSL"
     var
         TempFeature: Record Feature_FF_TSL temporary;
     begin
-        FeatureMgt.LoadFeatures(TempFeature);
+        FeatureMgt.LoadFeatures(TempFeature, true);
         Rec.Copy(TempFeature, true)
     end;
 

@@ -2,7 +2,7 @@ codeunit 50102 "Notification"
 {
     var
         FeatureMgt: Codeunit FeatureMgt_FF_TSL;
-        FeedbackNotificationFeatureIDLbl: Label 'CO_ANNOUNCEMENT', Locked = true;
+        FeedbackNotificationFeatureIDLbl: Label 'SMPANNCMNT', Locked = true;
         FeedbackNotificationIDLbl: Label '7424d5ac-2f44-41eb-9ad3-22f050e933d8', Locked = true;
 
     local procedure SendFeedbackNotification()
