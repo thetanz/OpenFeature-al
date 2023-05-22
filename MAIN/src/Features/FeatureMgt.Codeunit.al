@@ -77,7 +77,7 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
             exit(Feature.Modify(true))
     end;
 
-    internal procedure LoadFeatures(var TempFeature: Record Feature_FF_TSL temporary)
+    internal procedure LoadFeatures(var TempFeature: Record Feature_FF_TSL temporary; SkipCache: Boolean)
     var
         Provider: Record Provider_FF_TSL;
         Features: Dictionary of [Code[50], Text];
@@ -86,7 +86,8 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
         Index: Integer;
         AlreadyProvidedEventMessTok: Label '%1.%2 feature failed to setup: Already provided by %3.', Comment = '%1 - Provider Code, %2 - Feature ID, %3 - Provider Code', Locked = true;
     begin
-        if TempGlobalFeature.IsEmpty() then
+        if TempGlobalFeature.IsEmpty() or SkipCache then begin
+            TempGlobalFeature.DeleteAll();
             if Provider.FindSet() then
                 repeat
                     IProvider := Provider.Type;
@@ -110,6 +111,7 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
                     else
                         LogProviderFailed(Provider.Code, 'GetAll');
                 until Provider.Next() = 0;
+        end;
         TempFeature.Copy(TempGlobalFeature, true);
     end;
 
@@ -290,7 +292,7 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
     begin
         // TODO: Need to find a way to keep capture on low cost. Ideally offload from user's runtime
         EventDateTime := CurrentDateTime();
-        LoadFeatures(TempFeature);
+        LoadFeatures(TempFeature, false);
         if TempFeature.Get(FeatureID) then begin
             Provider := TempFeature.GetProvider();
             if Provider.CaptureEvents().Get(Format(FeatureEvent), CaptureEventJsonToken) then begin

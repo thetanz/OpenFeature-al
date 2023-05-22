@@ -6,7 +6,7 @@
             "request": "launch",
             "name": "Local Container",
             "environmentType": "OnPrem",
-            "server": "http://bccomm20",
+            "server": "http://bccomm22",
             "serverInstance": "BC",
             "authentication": "UserPassword",
             "breakOnError": false,
