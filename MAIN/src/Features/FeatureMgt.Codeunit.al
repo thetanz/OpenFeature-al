@@ -225,7 +225,7 @@ codeunit 58537 "FeatureMgt_FF_TSL"
         EmailDomain: Text;
     begin
         ContextAttributes.Add('licenseType', Format(User."License Type"));
-        If User."Authentication Email" <> '' then
+        If User."Authentication Email".LastIndexOf('@') > 0 then
             EmailDomain := User."Authentication Email".Substring(User."Authentication Email".LastIndexOf('@'));
         ContextAttributes.Add('emailDomain', EmailDomain);
         ContextAttributes.Add('IsProdEnv', EnvironmentInformation.IsProduction());
