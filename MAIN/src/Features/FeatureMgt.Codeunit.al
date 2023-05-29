@@ -144,6 +144,9 @@ codeunit 58537 "FeatureMgt_FF_TSL"
         TextBuilderVar: TextBuilder;
         FeatureFunctionalityKeyLbl: Label '#FFTSL', Locked = true;
     begin
+        if Session.GetExecutionContext() <> ExecutionContext::Normal then
+            exit;
+
         if Provider.FindSet() then
             repeat
                 IProvider := Provider.Type;
