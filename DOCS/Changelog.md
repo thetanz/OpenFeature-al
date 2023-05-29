@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
 <!---for any bug fixes--->
-- 
+- Install\Upgrade fails with ApplicationArea calculation
+- Failed to AddProvider when there are user with invalid authentication email
 ### Added
 <!---for new features--->
 - 
