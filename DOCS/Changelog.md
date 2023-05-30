@@ -10,15 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
 <!---for any bug fixes--->
-- Install\Upgrade fails with ApplicationArea calculation
-- Failed to AddProvider when there are user with invalid authentication email
-- Install\Upgrade fails with transaction inside TryFunction error
+- 
 ### Added
 <!---for new features--->
 - 
 ### Changed
 <!---for changes in existing functionality--->
-- `Feature` page always reloads features from providers
+- 
 ### Deprecated
 <!---for soon-to-be removed features--->
 - 
@@ -28,6 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 <!---in case of vulnerabilities--->
 - 
+## 3.1.0.0 - `2023-05-31`
+### Fixed
+- Install\Upgrade fails with ApplicationArea calculation
+- Failed to AddProvider when there are user with invalid authentication email
+- Install\Upgrade fails with transaction inside TryFunction error
+### Changed
+- `Feature` page always reloads features from providers
 ## 3.0.0.0 - `2023-05-20`
 ### Added
 - `ConditionProvider_FF_TSL` enables per environment conditional feature definition using `AddFeature`, `AddCondition` and `AddFeatureCondition` methods
