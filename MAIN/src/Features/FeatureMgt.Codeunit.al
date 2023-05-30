@@ -7,7 +7,8 @@ codeunit 58537 "FeatureMgt_FF_TSL"
         tabledata Feature_FF_TSL = RI,
         tabledata User = R,
         tabledata "User Personalization" = R,
-        tabledata "All Profile" = R;
+        tabledata "All Profile" = R,
+        tabledata "Application User Settings" = R;
 
     var
         TempGlobalFeature: Record Feature_FF_TSL temporary;
@@ -219,6 +220,7 @@ codeunit 58537 "FeatureMgt_FF_TSL"
     var
         UserPersonalization: Record "User Personalization";
         AllProfile: Record "All Profile";
+        ApplicationUserSettings: Record "Application User Settings";
         EnvironmentInformation: Codeunit "Environment Information";
         ApplicationSystemConstants: Codeunit "Application System Constants";
         UserSettings: Codeunit "User Settings";
@@ -237,7 +239,7 @@ codeunit 58537 "FeatureMgt_FF_TSL"
         if TempUserSettings."User Security ID" <> User."User Security ID" then begin
             Clear(TempUserSettings);
             UserPersonalization.SetRange("User SID", User."User Security ID");
-            if not UserPersonalization.IsEmpty() then
+            if not UserPersonalization.IsEmpty() and ApplicationUserSettings.Get(User."User Security ID") then
                 UserSettings.GetUserSettings(User."User Security ID", TempUserSettings)
             else begin
                 if DefaultProfileID = '' then begin

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!---for any bug fixes--->
 - Install\Upgrade fails with ApplicationArea calculation
 - Failed to AddProvider when there are user with invalid authentication email
+- Install\Upgrade fails with transaction inside TryFunction error
 ### Added
 <!---for new features--->
 - 
