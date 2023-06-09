@@ -287,3 +287,4 @@ __pycache__/
 # Project
 EXAMPLE/src/HandcodeSecretProvider.Codeunit.al
 **/*.http
+**/.scripts
