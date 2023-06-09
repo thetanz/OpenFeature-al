@@ -22,7 +22,7 @@ table 58535 "Feature_FF_TSL"
                 FeatureIDContainsErr: Label 'Feature ID should contain only numbers and letters.';
                 KeyShouldBeUniqueErr: Label 'Feature ID should not be a part of another Feature ID.';
             begin
-                if not Regex.IsMatch(ID, '[^A-Za-z0-9]+') then
+                if Regex.IsMatch(ID, '[^A-Za-z0-9]+') then
                     Error(FeatureIDContainsErr);
                 Feature.SetFilter(ID, '*%1*', ID);
                 if not Feature.IsEmpty() then

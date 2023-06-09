@@ -1,8 +1,7 @@
-codeunit 50101 "ConditionProvider Test_FF_TSL"
+codeunit 50101 "ConditionProviderTest_FF_TSL"
 {
     // [FEATURE] [Condition Provider API]
     Subtype = Test;
-    TestPermissions = Disabled;
 
     var
         Library: Codeunit Library_FF_TSL;
@@ -43,7 +42,7 @@ codeunit 50101 "ConditionProvider Test_FF_TSL"
         // [When] AddFeature is called
         asserterror ConditionProvider.AddFeature(FeatureID, Description);
         // [Then] AddFeature should failed with "should contain" error
-        Assert.ExpectedError('Feature ID should contain only numbers and capital letters.')
+        Assert.ExpectedError('Feature ID should contain only numbers and letters.')
     end;
 
     [Test]
