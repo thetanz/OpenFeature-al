@@ -5,6 +5,7 @@ table 70254345 "Feature_FF_TSL"
     DataPerCompany = false;
     Caption = 'Feature';
     LookupPageId = Features_FF_TSL;
+    Permissions = tabledata Provider_FF_TSL = R;
 
     fields
     {
@@ -18,10 +19,11 @@ table 70254345 "Feature_FF_TSL"
             var
                 Feature: Record Feature_FF_TSL;
                 Regex: Codeunit Regex;
+                FeatureIDContainsErr: Label 'Feature ID should contain only numbers and capital letters.';
                 KeyShouldBeUniqueErr: Label 'Feature ID should not be a part of another Feature ID.';
             begin
-                Regex.Regex('[^0-9A-Z]+');
-                ID := CopyStr(Regex.Replace(ID, ''), 1, MaxStrLen(ID));
+                if not Regex.IsMatch(ID, '[^0-9A-Z]+') then
+                    Error(FeatureIDContainsErr);
                 Feature.SetFilter(ID, '*%1*', ID);
                 if not Feature.IsEmpty() then
                     Error(KeyShouldBeUniqueErr);

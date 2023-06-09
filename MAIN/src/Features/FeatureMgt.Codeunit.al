@@ -3,8 +3,8 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
     Access = Public;
     SingleInstance = true;
     Permissions =
-        tabledata Provider_FF_TSL = RI,
-        tabledata Feature_FF_TSL = RI,
+        tabledata Provider_FF_TSL = RIM,
+        tabledata Feature_FF_TSL = RIM,
         tabledata User = R,
         tabledata "User Personalization" = R,
         tabledata "All Profile" = R,
@@ -13,6 +13,8 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
     var
         TempGlobalFeature: Record Feature_FF_TSL temporary;
         TempUserSettings: Record "User Settings" temporary;
+        GlobalContextAttributesContextID: Text;
+        GlobalContextAttributes: JsonObject;
         DefaultProfileID: Code[30];
 
     #region Library
@@ -78,7 +80,8 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
             exit(Feature.Modify(true))
     end;
 
-    internal procedure LoadFeatures(var TempFeature: Record Feature_FF_TSL temporary; SkipCache: Boolean)
+    [TryFunction]
+    internal procedure TryLoadFeatures(var TempFeature: Record Feature_FF_TSL temporary; SkipCache: Boolean)
     var
         Provider: Record Provider_FF_TSL;
         Features: Dictionary of [Code[50], Text];
@@ -226,6 +229,12 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
         UserSettings: Codeunit "User Settings";
         EmailDomain: Text;
     begin
+        ContextID := GetUserContextID(User."User Security ID");
+        if GlobalContextAttributesContextID = ContextID then begin
+            ContextAttributes := GlobalContextAttributes;
+            exit;
+        end else
+            Clear(GlobalContextAttributes);
         ContextAttributes.Add('licenseType', Format(User."License Type"));
         If User."Authentication Email".LastIndexOf('@') > 0 then
             EmailDomain := User."Authentication Email".Substring(User."Authentication Email".LastIndexOf('@'));
@@ -256,7 +265,8 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
         end;
         ContextAttributes.Add('profileID', TempUserSettings."Profile ID");
         OnGetUserContext(ContextAttributes);
-        ContextID := GetUserContextID(User."User Security ID");
+        GlobalContextAttributes := ContextAttributes;
+        GlobalContextAttributesContextID := ContextID;
     end;
 
     #endregion
@@ -297,18 +307,18 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
     begin
         // TODO: Need to find a way to keep capture on low cost. Ideally offload from user's runtime
         EventDateTime := CurrentDateTime();
-        LoadFeatures(TempFeature, false);
-        if TempFeature.Get(FeatureID) then begin
-            Provider := TempFeature.GetProvider();
-            if Provider.CaptureEvents().Get(Format(FeatureEvent), CaptureEventJsonToken) then begin
-                CustomDimensions.Add('FeatureID', FeatureID);
-                IProvider := Provider.Type;
-                if CaptureEventJsonToken.AsValue().AsBoolean() then begin
-                    // TODO: Capture event in background
-                end else
-                    TryCaptureEvent(IProvider, Provider.ConnectionInfo(), EventDateTime, FeatureEvent, CustomDimensions);
+        if TryLoadFeatures(TempFeature, false) then
+            if TempFeature.Get(FeatureID) then begin
+                Provider := TempFeature.GetProvider();
+                if Provider.CaptureEvents().Get(Format(FeatureEvent), CaptureEventJsonToken) then begin
+                    CustomDimensions.Add('FeatureID', FeatureID);
+                    IProvider := Provider.Type;
+                    if CaptureEventJsonToken.AsValue().AsBoolean() then begin
+                        // TODO: Capture event in background
+                    end else
+                        TryCaptureEvent(IProvider, Provider.ConnectionInfo(), EventDateTime, FeatureEvent, CustomDimensions);
+                end
             end
-        end
     end;
 
     [TryFunction]
@@ -350,6 +360,8 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
         IProvider: Interface IProvider_FF_TSL;
     begin
         if OldSettings."Profile ID" <> NewSettings."Profile ID" then begin
+            GlobalContextAttributesContextID := '';
+            Clear(GlobalContextAttributes);
             TempUserSettings.Copy(NewSettings);
             if Provider.FindSet() then
                 repeat
