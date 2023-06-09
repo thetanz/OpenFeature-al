@@ -91,7 +91,7 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
         AlreadyProvidedEventMessTok: Label '%1.%2 feature failed to setup: Already provided by %3.', Comment = '%1 - Provider Code, %2 - Feature ID, %3 - Provider Code', Locked = true;
     begin
         if TempGlobalFeature.IsEmpty() or SkipCache then begin
-            TempGlobalFeature.DeleteAll();
+            Clear(TempGlobalFeature);
             if Provider.FindSet() then
                 repeat
                     IProvider := Provider.Type;
