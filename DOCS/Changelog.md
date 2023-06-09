@@ -26,6 +26,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 <!---in case of vulnerabilities--->
 - 
+## 3.2.0.0 - `2023-06-08`
+### Added
+- Catching `GetUserContext` response
+### Changed
+- Feature ID validation to allow only alphanumeric characters
+- `LoadFeatures` become try function to unblock user in case if some features have invalid ID
+### Fixed
+- Extending `System Execute - Basic` instead of `System App - Basic` as a lowest level permission set
+- `Basic` and `Admin` permissionsetextension reworked to include indirect permissions
 ## 3.1.0.0 - `2023-05-31`
 ### Fixed
 - Install\Upgrade fails with ApplicationArea calculation

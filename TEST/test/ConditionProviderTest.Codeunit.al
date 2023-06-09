@@ -32,6 +32,22 @@ codeunit 50101 "ConditionProvider Test_FF_TSL"
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
+    procedure UnitTestAddFeatureWithInvalidName();
+    var
+        FeatureID: Code[50];
+        Description: Text[2048];
+    begin
+        // [Scenario] AddFeature should return true
+        // [Given] Define feature with invalid name
+        FeatureID := CopyStr(LibraryRandom.RandText(40).ToUpper() + '-some', 1, 50);
+        // [When] AddFeature is called
+        asserterror ConditionProvider.AddFeature(FeatureID, Description);
+        // [Then] AddFeature should failed with "should contain" error
+        Assert.ExpectedError('Feature ID should contain only numbers and capital letters.')
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
     procedure UnitTestAddConditionWithCompanyFilter()
     var
         Code: Code[50];
