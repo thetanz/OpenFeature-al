@@ -1,0 +1,3 @@
+[submodule "EXAMPLE01"]
+	path = EXAMPLE01
+	url = https://github.com/vody/CustomerRewardsFFExample

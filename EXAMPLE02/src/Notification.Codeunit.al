@@ -1,4 +1,4 @@
-codeunit 50102 "Notification"
+codeunit 50201 "Notification"
 {
     var
         FeatureMgt: Codeunit FeatureMgt_FF_TSL;
