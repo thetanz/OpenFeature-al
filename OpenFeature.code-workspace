@@ -59,7 +59,10 @@
             "path": "TEST"
         },
         {
-            "path": "EXAMPLE"
+            "path": "EXAMPLE01"
+        },
+        {
+            "path": "EXAMPLE02"
         }
     ]
 }

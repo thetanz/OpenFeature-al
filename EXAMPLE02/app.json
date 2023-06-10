@@ -1,6 +1,6 @@
 {
   "id": "b5c32185-6f69-42a0-b580-736601c8a84e",
-  "name": "Example App",
+  "name": "Dynamics Announcement",
   "publisher": "Theta Systems Limited",
   "version": "1.0.0.0",
   "brief": "Feature Flagging Example App",
@@ -9,8 +9,7 @@
   "EULA": "https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RE5d5ga",
   "help": "https://www.theta.co.nz/contact-us",
   "url": "https://www.theta.co.nz/",
-  "logo": "../logo.png",
-  "propagateDependencies": true,
+  "logo": "",
   "dependencies": [
     {
       "id": "c42f2379-d7b5-4378-8ce4-9bca293c6189",
@@ -20,26 +19,14 @@
     }
   ],
   "screenshots": [],
-  "target": "Cloud",
   "platform": "22.0.0.0",
   "application": "22.0.0.0",
   "idRanges": [
     {
-      "from": 50100,
-      "to": 50199
+      "from": 50200,
+      "to": 50299
     }
   ],
-  "contextSensitiveHelpUrl": "https://docs.microsoft.com/{0}/dynamics365/business-central",
-  "supportedLocales": ["en-NZ", "en-AU", "en-US", "en-GB"],
-  "resourceExposurePolicy": {
-    "allowDebugging": false,
-    "allowDownloadingSource": false,
-    "includeSourceInSymbolFile": false
-  },
-  "runtime": "11.0",
-  "features": [
-    "TranslationFile",
-    "NoImplicitWith",
-    "ExcludeGeneratedTranslations"
-  ]
+  "target": "Cloud",
+  "contextSensitiveHelpUrl": "https://learn.microsoft.com/dynamics365/business-central/"
 }
