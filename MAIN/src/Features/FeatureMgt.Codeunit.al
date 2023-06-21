@@ -215,8 +215,9 @@ codeunit 58537 "FeatureMgt_FF_TSL"
     var
         User: Record User;
     begin
-        User.Get(UserSecurityId());
-        exit(GetUserContext(User, ContextAttributes))
+        Clear(ContextAttributes);
+        if User.Get(UserSecurityId()) then
+            exit(GetUserContext(User, ContextAttributes))
     end;
 
     internal procedure GetUserContext(User: Record User; var ContextAttributes: JsonObject) ContextID: Text
