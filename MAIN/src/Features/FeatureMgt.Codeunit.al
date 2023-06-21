@@ -13,6 +13,7 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
     var
         TempGlobalFeature: Record Feature_FF_TSL temporary;
         TempUserSettings: Record "User Settings" temporary;
+        ProviderData: Dictionary of [Text, JsonObject];
         GlobalContextAttributesContextID: Text;
         GlobalContextAttributes: JsonObject;
         DefaultProfileID: Code[30];
@@ -406,6 +407,57 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
                     exit(JsonToken.AsValue().AsText());
         if not SkipError then
             Error(ShouldbeDefinedTok, "Key");
+    end;
+
+    #endregion
+
+    #region Cached
+
+    [NonDebuggable]
+    internal procedure GetProviderData(Provider: Record Provider_FF_TSL; ConnectionInfo: Boolean) Result: JsonObject
+    var
+        StorageKey, ResultAsText : Text;
+    begin
+        StorageKey := GetStorageKey(Provider, ConnectionInfo);
+        if not ProviderData.Get(StorageKey, Result) then
+            if IsolatedStorage.Contains(StorageKey, DataScope::Module) then
+                if IsolatedStorage.Get(StorageKey, DataScope::Module, ResultAsText) then
+                    if Result.ReadFrom(ResultAsText) then
+                        ProviderData.Add(StorageKey, Result)
+    end;
+
+    [NonDebuggable]
+    internal procedure SetProviderData(Provider: Record Provider_FF_TSL; ConnectionInfo: Boolean; Value: JsonObject) Result: JsonObject
+    var
+        StorageKey, ValueAsText : Text;
+    begin
+        StorageKey := GetStorageKey(Provider, ConnectionInfo);
+        if Value.WriteTo(ValueAsText) then
+            if IsolatedStorage.Set(StorageKey, ValueAsText, DataScope::Module) then
+                ProviderData.Add(StorageKey, Value)
+    end;
+
+    [NonDebuggable]
+    internal procedure DeleteProviderData(Provider: Record Provider_FF_TSL; ConnectionInfo: Boolean)
+    var
+        StorageKey: Text;
+    begin
+        StorageKey := GetStorageKey(Provider, ConnectionInfo);
+        if IsolatedStorage.Contains(StorageKey, DataScope::Module) then
+            if IsolatedStorage.Delete(StorageKey, DataScope::Module) then
+                if ProviderData.ContainsKey(StorageKey) then
+                    ProviderData.Remove(StorageKey)
+    end;
+
+    local procedure GetStorageKey(Provider: Record Provider_FF_TSL; ConnectionInfo: Boolean): Text
+    var
+        ConnectionInfoTok: Label 'FF_PROVIDER_%1_INFO', Comment = '%1 - Provider Code', Locked = true;
+        CaptureEventsTok: Label 'FF_PROVIDER_%1_EVENTS', Comment = '%1 - Provider Code', Locked = true;
+    begin
+        if ConnectionInfo then
+            exit(StrSubstNo(ConnectionInfoTok, Provider.Code))
+        else
+            exit(StrSubstNo(CaptureEventsTok, Provider.Code))
     end;
 
     #endregion
