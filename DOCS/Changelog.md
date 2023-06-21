@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
 <!---for any bug fixes--->
-- 'The User does not exist. Identification fields and values: User Security ID='{00000000-0000-0000-0000-000000000001}' fixed
+- `The User does not exist. Identification fields and values: User Security ID='{00000000-0000-0000-0000-000000000001}'` fixed 
+- `Provider_FF_TSL(Table 70254346).ConnectionInfo operation exceeded time threshold (SQL query)` fixed #12
 ### Added
 <!---for new features--->
 - 

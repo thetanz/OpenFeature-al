@@ -24,58 +24,33 @@ table 58536 "Provider_FF_TSL"
     }
 
     var
-        ConnectionInfoTok: Label 'FF_PROVIDER_%1_INFO', Comment = '%1 - Provider Code', Locked = true;
-        CaptureEventsTok: Label 'FF_PROVIDER_%1_EVENTS', Comment = '%1 - Provider Code', Locked = true;
+        FeatureMgt: Codeunit FeatureMgt_FF_TSL;
 
     trigger OnDelete()
-    var
-        StorageKey: Text;
     begin
-        StorageKey := StrSubstNo(ConnectionInfoTok, Rec.Code);
-        if IsolatedStorage.Contains(StorageKey, DataScope::Module) then
-            IsolatedStorage.Delete(StorageKey, DataScope::Module);
-        StorageKey := StrSubstNo(CaptureEventsTok, Rec.Code);
-        if IsolatedStorage.Contains(StorageKey, DataScope::Module) then
-            IsolatedStorage.Delete(StorageKey, DataScope::Module)
+        FeatureMgt.DeleteProviderData(Rec, true);
+        FeatureMgt.DeleteProviderData(Rec, false)
     end;
 
     [NonDebuggable]
-    procedure ConnectionInfo() Result: JsonObject
-    var
-        StorageKey, ResultAsText : Text;
+    procedure ConnectionInfo(): JsonObject
     begin
-        StorageKey := StrSubstNo(ConnectionInfoTok, Rec.Code);
-        if IsolatedStorage.Contains(StorageKey, DataScope::Module) then
-            if IsolatedStorage.Get(StorageKey, DataScope::Module, ResultAsText) then
-                if Result.ReadFrom(ResultAsText) then;
+        exit(FeatureMgt.GetProviderData(Rec, true))
     end;
 
     [NonDebuggable]
     procedure ConnectionInfo(Value: JsonObject)
-    var
-        StorageKey, ValueAsText : Text;
     begin
-        StorageKey := StrSubstNo(ConnectionInfoTok, Rec.Code);
-        if Value.WriteTo(ValueAsText) then
-            IsolatedStorage.Set(StorageKey, ValueAsText, DataScope::Module)
+        FeatureMgt.SetProviderData(Rec, true, Value)
     end;
 
-    procedure CaptureEvents() Result: JsonObject
-    var
-        StorageKey, ResultAsText : Text;
+    procedure CaptureEvents(): JsonObject
     begin
-        StorageKey := StrSubstNo(CaptureEventsTok, Rec.Code);
-        if IsolatedStorage.Contains(StorageKey, DataScope::Module) then
-            if IsolatedStorage.Get(StorageKey, DataScope::Module, ResultAsText) then
-                if Result.ReadFrom(ResultAsText) then;
+        exit(FeatureMgt.GetProviderData(Rec, false))
     end;
 
     procedure CaptureEvents(Value: JsonObject)
-    var
-        StorageKey, ValueAsText : Text;
     begin
-        StorageKey := StrSubstNo(CaptureEventsTok, Rec.Code);
-        if Value.WriteTo(ValueAsText) then
-            IsolatedStorage.Set(StorageKey, ValueAsText, DataScope::Module)
+        FeatureMgt.SetProviderData(Rec, false, Value)
     end;
 }
