@@ -2,7 +2,7 @@
   "id": "9f917072-4ba0-4d01-abdc-417a006dbaf6",
   "name": "OpenFeature (TEST)",
   "publisher": "Theta Systems Limited",
-  "version": "3.2.0.0",
+  "version": "3.2.1.0",
   "brief": "Feature Flagging / Toggling / Switching",
   "description": "Same as a brief one",
   "privacyStatement": "https://www.theta.co.nz/contact-us/privacy-policy",

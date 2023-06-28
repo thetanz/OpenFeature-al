@@ -10,9 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
 <!---for any bug fixes--->
-- `The User does not exist. Identification fields and values: User Security ID='{00000000-0000-0000-0000-000000000001}'` fixed 
-- `Provider_FF_TSL(Table 70254346).ConnectionInfo operation exceeded time threshold (SQL query)` fixed [#12](https://github.com/thetanz/OpenFeature-al/issues/12)
-- Failed to copy environment [#17](https://github.com/thetanz/OpenFeature-al/issues/17)
+- 
 ### Added
 <!---for new features--->
 - 
@@ -28,6 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 <!---in case of vulnerabilities--->
 - 
+## 3.2.1.0 - `2023-06-28`
+### Fixed
+- `The User does not exist. Identification fields and values: User Security ID='{00000000-0000-0000-0000-000000000001}'` fixed 
+- `Provider_FF_TSL(Table 70254346).ConnectionInfo operation exceeded time threshold (SQL query)` fixed [#12](https://github.com/thetanz/OpenFeature-al/issues/12)
+- Failed to copy environment [#17](https://github.com/thetanz/OpenFeature-al/issues/17)
 ## 3.2.0.0 - `2023-06-08`
 ### Added
 - Catching `GetUserContext` response
