@@ -147,6 +147,7 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
         FeatureIDs: List of [Code[50]];
         FeatureID: Code[50];
         TextBuilderVar: TextBuilder;
+        CurrentApplicationArea: Text;
         FeatureFunctionalityKeyLbl: Label '#FFTSL', Locked = true;
     begin
         if Session.GetExecutionContext() <> ExecutionContext::Normal then
@@ -164,7 +165,10 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
                 else
                     LogProviderFailed(Provider.Code, 'GetEnabled');
             until Provider.Next() = 0;
-        ApplicationArea(GetApplicationAreaSetup() + ',' + TextBuilderVar.ToText() + FeatureFunctionalityKeyLbl);
+        CurrentApplicationArea := GetApplicationAreaSetup();
+        if CurrentApplicationArea <> '' then
+            CurrentApplicationArea += ',';
+        ApplicationArea(CurrentApplicationArea + TextBuilderVar.ToText() + FeatureFunctionalityKeyLbl);
     end;
 
     local procedure GetApplicationAreaSetup() ApplicationAreas: Text
