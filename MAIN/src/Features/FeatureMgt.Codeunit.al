@@ -153,6 +153,10 @@ codeunit 58537 "FeatureMgt_FF_TSL"
         if Session.GetExecutionContext() <> ExecutionContext::Normal then
             exit;
 
+        CurrentApplicationArea := GetApplicationAreaSetup();
+        if CurrentApplicationArea = '' then
+            exit;
+
         if Provider.FindSet() then
             repeat
                 IProvider := Provider.Type;
@@ -165,10 +169,7 @@ codeunit 58537 "FeatureMgt_FF_TSL"
                 else
                     LogProviderFailed(Provider.Code, 'GetEnabled');
             until Provider.Next() = 0;
-        CurrentApplicationArea := GetApplicationAreaSetup();
-        if CurrentApplicationArea <> '' then
-            CurrentApplicationArea += ',';
-        ApplicationArea(CurrentApplicationArea + TextBuilderVar.ToText() + FeatureFunctionalityKeyLbl);
+        ApplicationArea(CurrentApplicationArea + ',' + TextBuilderVar.ToText() + FeatureFunctionalityKeyLbl);
     end;
 
     local procedure GetApplicationAreaSetup() ApplicationAreas: Text

@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
 <!---for any bug fixes--->
-- 
+- Extension somehow breaks other extensions install [#18](https://github.com/thetanz/OpenFeature-al/issues/18)
 ### Added
 <!---for new features--->
 - 
