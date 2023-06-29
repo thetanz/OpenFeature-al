@@ -148,7 +148,7 @@ codeunit 58537 "FeatureMgt_FF_TSL"
         FeatureID: Code[50];
         TextBuilderVar: TextBuilder;
         CurrentApplicationArea: Text;
-        FeatureFunctionalityKeyLbl: Label '#FFTSL', Locked = true;
+        FeatureFunctionalityKeyLbl: Label '#FFTSL,', Locked = true;
     begin
         if Session.GetExecutionContext() <> ExecutionContext::Normal then
             exit;
