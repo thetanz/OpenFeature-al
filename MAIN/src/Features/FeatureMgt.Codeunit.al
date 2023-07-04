@@ -140,6 +140,8 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
         Enabled := StrPos(EnabledFeatureIds, '#' + FeatureID + ',') <> 0;
         if Session.GetExecutionContext() <> ExecutionContext::Normal then
             exit;
+        if Database.IsInWriteTransaction() then
+            exit;
         NavApp.GetCallerModuleInfo(CallerModuleInfo);
         CaptureStateCheck(FeatureID, Enabled, CallerModuleInfo)
     end;
