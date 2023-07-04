@@ -1,6 +1,8 @@
 codeunit 70254349 "CompanyFilterCondFunc_FF_TSL" implements IConditionFunction_FF_TSL
 {
     Access = Internal;
+    InherentEntitlements = X;
+    InherentPermissions = X;
     Permissions =
         tabledata Company = R;
 

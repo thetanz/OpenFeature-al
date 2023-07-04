@@ -5,7 +5,8 @@ table 70254345 "Feature_FF_TSL"
     DataPerCompany = false;
     Caption = 'Feature';
     LookupPageId = Features_FF_TSL;
-    Permissions = tabledata Provider_FF_TSL = R;
+    InherentEntitlements = RIMDX;
+    InherentPermissions = R;
 
     fields
     {

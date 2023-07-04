@@ -3,6 +3,8 @@ table 70254346 "Provider_FF_TSL"
     Access = Internal;
     DataClassification = SystemMetadata;
     DataPerCompany = false;
+    InherentEntitlements = RIMDX;
+    InherentPermissions = R;
 
     fields
     {

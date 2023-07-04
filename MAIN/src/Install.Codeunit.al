@@ -2,6 +2,8 @@ codeunit 70254345 "Install_FF_TSL"
 {
     Access = Internal;
     Subtype = Install;
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnInstallAppPerDatabase()
     var

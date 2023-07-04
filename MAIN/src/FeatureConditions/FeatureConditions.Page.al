@@ -6,6 +6,8 @@ page 70254349 "FeatureConditions_FF_TSL"
     ApplicationArea = All;
     RefreshOnActivate = true;
     Extensible = false;
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     layout
     {

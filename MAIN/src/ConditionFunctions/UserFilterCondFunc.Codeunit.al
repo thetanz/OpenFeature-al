@@ -1,6 +1,8 @@
 codeunit 70254348 "UserFilterCondFunc_FF_TSL" implements IConditionFunction_FF_TSL
 {
     Access = Internal;
+    InherentEntitlements = X;
+    InherentPermissions = X;
     Permissions =
         tabledata User = R;
 

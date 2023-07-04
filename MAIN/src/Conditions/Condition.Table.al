@@ -5,6 +5,10 @@ table 70254347 "Condition_FF_TSL"
     DataPerCompany = false;
     Caption = 'Condition';
     LookupPageId = Conditions_FF_TSL;
+    InherentEntitlements = RIMDX;
+    InherentPermissions = R;
+    Permissions =
+        tabledata FeatureCondition_FF_TSL = D;
 
     fields
     {
