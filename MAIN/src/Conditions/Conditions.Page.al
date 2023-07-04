@@ -7,6 +7,8 @@ page 58537 "Conditions_FF_TSL"
     DelayedInsert = true;
     RefreshOnActivate = true;
     Extensible = false;
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     layout
     {

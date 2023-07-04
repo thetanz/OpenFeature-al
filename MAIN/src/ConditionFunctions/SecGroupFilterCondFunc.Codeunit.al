@@ -1,6 +1,8 @@
 codeunit 58650 "SecGroupFilterCondFunc_FF_TSL" implements IConditionFunction_FF_TSL
 {
     Access = Internal;
+    InherentEntitlements = X;
+    InherentPermissions = X;
     Permissions =
         tabledata "Security Group Member Buffer" = R;
 

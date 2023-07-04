@@ -2,9 +2,10 @@ codeunit 58651 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
 {
     Access = Public;
     SingleInstance = true;
+    InherentEntitlements = X;
+    InherentPermissions = X;
     Permissions =
-        tabledata Condition_FF_TSL = RI,
-        tabledata FeatureCondition_FF_TSL = RID;
+        tabledata User = R;
 
     var
         FeatureMgt: Codeunit FeatureMgt_FF_TSL;
@@ -20,6 +21,7 @@ codeunit 58651 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
         exit(FeatureMgt.AddFeature(FeatureID, Description, ConditionProviderCodeTxt))
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::Condition_FF_TSL, 'I')]
     procedure AddCondition(Code: Code[50]; Function: Enum ConditionFunction_FF_TSL; Argument: Text) Result: Boolean
     var
         Condition: Record Condition_FF_TSL;
@@ -32,6 +34,7 @@ codeunit 58651 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
         end
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::FeatureCondition_FF_TSL, 'IM')]
     procedure AddFeatureCondition(FeatureID: Code[50]; ConditionCode: Code[50]) Result: Boolean
     var
         FeatureCondition: Record FeatureCondition_FF_TSL;
@@ -86,6 +89,8 @@ codeunit 58651 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
         StrmenuOptionLbl: Label '%1,Everyone', Comment = '%1 = User ID';
         StrmenuResult: Integer;
     begin
+        if not FeatureCondition.WritePermission() then
+            exit;
         if not FeatureMgt.IsEnabled(FeatureID) then begin
             StrmenuResult := StrMenu(StrSubstNo(StrmenuOptionLbl, UserId()), 0, StrmenuInstructionLbl);
             if StrmenuResult > 0 then begin
@@ -204,6 +209,7 @@ codeunit 58651 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
     #region Subscribers
 
     [EventSubscriber(ObjectType::Table, Database::Feature_FF_TSL, OnAfterDeleteEvent, '', false, false)]
+    [InherentPermissions(PermissionObjectType::TableData, Database::FeatureCondition_FF_TSL, 'D')]
     local procedure OnDeleteFeature(var Rec: Record Feature_FF_TSL; RunTrigger: Boolean)
     var
         FeatureCondition: Record FeatureCondition_FF_TSL;

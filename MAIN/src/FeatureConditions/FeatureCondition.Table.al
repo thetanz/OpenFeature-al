@@ -5,16 +5,17 @@ table 58538 "FeatureCondition_FF_TSL"
     DataPerCompany = false;
     LookupPageId = FeatureConditions_FF_TSL;
     Caption = 'Feature Flag Condition';
+    InherentEntitlements = RIMDX;
+    InherentPermissions = R;
 
     fields
     {
         field(1; FeatureID; Code[50])
         {
-            Caption = 'Feature Flag Key';
+            Caption = 'Feature ID';
             DataClassification = CustomerContent;
             NotBlank = true;
             TableRelation = Feature_FF_TSL;
-            ValidateTableRelation = false;
         }
         field(2; ConditionCode; Code[50])
         {

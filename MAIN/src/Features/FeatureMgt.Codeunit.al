@@ -2,9 +2,9 @@ codeunit 58537 "FeatureMgt_FF_TSL"
 {
     Access = Public;
     SingleInstance = true;
+    InherentEntitlements = X;
+    InherentPermissions = X;
     Permissions =
-        tabledata Provider_FF_TSL = RIM,
-        tabledata Feature_FF_TSL = RIM,
         tabledata User = R,
         tabledata "User Personalization" = R,
         tabledata "All Profile" = R,
@@ -14,10 +14,9 @@ codeunit 58537 "FeatureMgt_FF_TSL"
         TempGlobalFeature: Record Feature_FF_TSL temporary;
         TempUserSettings: Record "User Settings" temporary;
         ProviderData: Dictionary of [Text, JsonObject];
-        GlobalContextAttributesContextID: Text;
+        GlobalContextAttributesContextID, EnabledFeatureIds : Text;
         GlobalContextAttributes: JsonObject;
         DefaultProfileID: Code[30];
-        EnabledFeatureIds: Text;
 
     #region Library
 
@@ -37,6 +36,7 @@ codeunit 58537 "FeatureMgt_FF_TSL"
     end;
 
     [NonDebuggable]
+    [InherentPermissions(PermissionObjectType::TableData, Database::Provider_FF_TSL, 'IM')]
     internal procedure AddProvider(Code: Code[20]; Type: Enum ProviderType_FF_TSL; ConnectionInfo: JsonObject; CaptureEvents: JsonObject) Result: Boolean
     var
         Provider: Record Provider_FF_TSL;
@@ -71,6 +71,7 @@ codeunit 58537 "FeatureMgt_FF_TSL"
         exit(AddFeature(Feature, FeatureID, Description, ProviderCode))
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::Feature_FF_TSL, 'IM')]
     local procedure AddFeature(var Feature: Record Feature_FF_TSL; FeatureID: Code[50]; Description: Text; ProviderCode: Code[20]) Result: Boolean
     begin
         Feature.Init();

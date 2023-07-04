@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 <!---for any bug fixes--->
 - Extension somehow breaks other extensions install [#18](https://github.com/thetanz/OpenFeature-al/issues/18)
+- InherentPermissions to simplify permissions [#13](https://github.com/thetanz/OpenFeature-al/issues/13)
 ### Added
 <!---for new features--->
 - 
@@ -22,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 
 ### Removed
 <!---for now removed features--->
-- 
+- `Basic_FF_TSL` permissions set extension now handled using InherentPermissions
 ### Security
 <!---in case of vulnerabilities--->
 - 

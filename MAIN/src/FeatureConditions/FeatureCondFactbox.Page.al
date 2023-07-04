@@ -6,6 +6,8 @@ page 58538 "FeatureCondFactbox_FF_TSL"
     ApplicationArea = All;
     Caption = 'Conditions';
     Extensible = false;
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     layout
     {

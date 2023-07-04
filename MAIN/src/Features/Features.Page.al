@@ -10,6 +10,8 @@ page 58535 "Features_FF_TSL"
     RefreshOnActivate = true;
     InsertAllowed = false;
     DeleteAllowed = false;
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     layout
     {
