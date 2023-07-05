@@ -1,6 +1,5 @@
 enum 70254347 "FeatureEvent_FF_TSL"
 {
-    Access = Internal;
     Extensible = false;
 
     /// <summary>

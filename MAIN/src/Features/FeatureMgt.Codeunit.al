@@ -133,6 +133,11 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
 
     #region API
 
+    /// <summary>
+    /// Checks if a feature is enabled for the current user.
+    /// </summary>
+    /// <param name="FeatureID">The ID of the feature to check.</param>
+    /// <returns>True if the feature is enabled for the current user.</returns>
     procedure IsEnabled(FeatureID: Code[50]) Enabled: Boolean
     var
         CallerModuleInfo: ModuleInfo;
@@ -285,7 +290,7 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
             end
         end;
         ContextAttributes.Add('profileID', TempUserSettings."Profile ID");
-        OnGetUserContext(ContextAttributes);
+        OnAfterGetUserContext(ContextAttributes);
         GlobalContextAttributes := ContextAttributes;
         GlobalContextAttributesContextID := ContextID;
     end;
@@ -398,8 +403,12 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
 
     #region Events
 
-    [InternalEvent(false)]
-    local procedure OnGetUserContext(var ContextAttributes: JsonObject)
+    /// <summary>
+    /// This event is raised after the user context is set.
+    /// </summary>
+    /// <param name="ContextAttributes">Editable context attributes.</param>
+    [BusinessEvent(false)]
+    local procedure OnAfterGetUserContext(var ContextAttributes: JsonObject)
     begin
 
     end;
