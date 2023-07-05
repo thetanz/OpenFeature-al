@@ -16,11 +16,24 @@ codeunit 58651 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
 
     #region Library
 
-    procedure AddFeature(FeatureID: Code[50]; Description: Text[2048]): Boolean
+    /// <summary>
+    /// Adds a new feature to the system.
+    /// </summary>
+    /// <param name="FeatureID">Feature identifier.</param>
+    /// <param name="Description">Feature description which may include a link to learn more about the feature. Example: "[My new feature](https://www.example.com)"</param>
+    /// <returns>True if the feature was added successfully.</returns>
+    procedure AddFeature(FeatureID: Code[50]; Description: Text): Boolean
     begin
         exit(FeatureMgt.AddFeature(FeatureID, Description, ConditionProviderCodeTxt))
     end;
 
+    /// <summary>
+    /// Adds a new condition to the system.
+    /// </summary>
+    /// <param name="Code">Condition code.</param>
+    /// <param name="Function">Condition function.</param>
+    /// <param name="Argument">Condition argument.</param>
+    /// <returns>True if the condition was added successfully.</returns>
     [InherentPermissions(PermissionObjectType::TableData, Database::Condition_FF_TSL, 'I')]
     procedure AddCondition(Code: Code[50]; Function: Enum ConditionFunction_FF_TSL; Argument: Text) Result: Boolean
     var
@@ -34,6 +47,12 @@ codeunit 58651 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
         end
     end;
 
+    /// <summary>
+    /// Adds a new feature condition to the system.
+    /// </summary>
+    /// <param name="FeatureID">Feature identifier.</param>
+    /// <param name="ConditionCode">Condition code.</param>
+    /// <returns>True if the feature condition was added successfully.</returns>
     [InherentPermissions(PermissionObjectType::TableData, Database::FeatureCondition_FF_TSL, 'IM')]
     procedure AddFeatureCondition(FeatureID: Code[50]; ConditionCode: Code[50]) Result: Boolean
     var

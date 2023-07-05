@@ -14,7 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - InherentPermissions to simplify permissions [#13](https://github.com/thetanz/OpenFeature-al/issues/13)
 ### Added
 <!---for new features--->
-- 
+- Code documentation for public APIs, public enums and interfaces
+- `IProvider_FF_TSL` and `FeatureEvent_FF_TSL` become public to enable custom providers 
+- `FeatureMgt_FF_TSL.OnAfterGetUserContext` event
 ### Changed
 <!---for changes in existing functionality--->
 - 

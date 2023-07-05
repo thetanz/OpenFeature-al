@@ -16,6 +16,13 @@ codeunit 58653 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
 
     #region Library
 
+    /// <summary>
+    /// Add a new PostHog provider to the system.
+    /// </summary>
+    /// <param name="Code">Provider code</param>
+    /// <param name="PersonalAPIKey">PostHug Personal API key</param>
+    /// <param name="ProjectID">PostHug Project ID</param>
+    /// <returns>True if the provider was added successfully, false otherwise</returns>
     [NonDebuggable]
     procedure AddProvider(Code: Code[20]; PersonalAPIKey: Text; ProjectID: Text): Boolean
     var
