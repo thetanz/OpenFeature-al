@@ -66,15 +66,8 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
 
     [NonDebuggable]
     internal procedure SetContext(ConnectionInfo: JsonObject; ContextUserSecurityID: Guid)
-    var
-        User: Record User;
     begin
-        if not IsNullGuid(ContextUserSecurityID) then
-            User.SetRange("User Security ID", ContextUserSecurityID);
-        if User.FindSet() then
-            repeat
-                CreateIdentity(User, ConnectionInfo)
-            until User.Next() = 0
+
     end;
 
     [NonDebuggable]

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!---for any bug fixes--->
 - Extension somehow breaks other extensions install [#18](https://github.com/thetanz/OpenFeature-al/issues/18)
 - InherentPermissions to simplify permissions [#13](https://github.com/thetanz/OpenFeature-al/issues/13)
+- SetContext Operation exceeded time threshold (AL method) [#11](https://github.com/thetanz/OpenFeature-al/issues/11)
 ### Added
 <!---for new features--->
 - Code documentation for public APIs, public enums and interfaces
