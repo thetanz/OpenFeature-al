@@ -10,14 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
 <!---for any bug fixes--->
-- Extension somehow breaks other extensions install [#18](https://github.com/thetanz/OpenFeature-al/issues/18)
-- InherentPermissions to simplify permissions [#13](https://github.com/thetanz/OpenFeature-al/issues/13)
-- SetContext Operation exceeded time threshold (AL method) [#11](https://github.com/thetanz/OpenFeature-al/issues/11)
+- 
 ### Added
 <!---for new features--->
-- Code documentation for public APIs, public enums and interfaces
-- `IProvider_FF_TSL` and `FeatureEvent_FF_TSL` become public to enable custom providers 
-- `FeatureMgt_FF_TSL.OnAfterGetUserContext` event
+- 
 ### Changed
 <!---for changes in existing functionality--->
 - 
@@ -26,10 +22,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 
 ### Removed
 <!---for now removed features--->
-- `Basic_FF_TSL` permissions set extension now handled using InherentPermissions
+- 
 ### Security
 <!---in case of vulnerabilities--->
 - 
+## 3.3.0.0 - `2023-07-13`
+### Fixed
+- Extension somehow breaks other extensions install [#18](https://github.com/thetanz/OpenFeature-al/issues/18)
+- InherentPermissions to simplify permissions [#13](https://github.com/thetanz/OpenFeature-al/issues/13)
+- SetContext Operation exceeded time threshold (AL method) [#11](https://github.com/thetanz/OpenFeature-al/issues/11)
+### Added
+- Code documentation for public APIs, public enums and interfaces
+- `IProvider_FF_TSL` and `FeatureEvent_FF_TSL` become public to enable custom providers 
+- `FeatureMgt_FF_TSL.OnAfterGetUserContext` event
+### Removed
+- `Basic_FF_TSL` permissions set extension now handled using InherentPermissions
 ## 3.2.1.0 - `2023-06-28`
 ### Fixed
 - `The User does not exist. Identification fields and values: User Security ID='{00000000-0000-0000-0000-000000000001}'` fixed 
