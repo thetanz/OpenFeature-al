@@ -5,6 +5,8 @@ codeunit 50100 "Library_FF_TSL"
     var
         Assert: Codeunit Assert;
 
+    #region Feature
+
     procedure AssertFeatureExists(FeatureID: Code[50])
     begin
         AssertFeature(FeatureID, false, "Feature Status"::Disabled)
@@ -28,6 +30,10 @@ codeunit 50100 "Library_FF_TSL"
                 Assert.AreEqual(State.AsInteger(), Features.State.AsInteger(), 'Feature ' + FeatureID + ' state should be ' + Format(State));
         Features.Close();
     end;
+
+    #endregion
+
+    #region Condition
 
     procedure AssertConditionExists(ConditionCode: Code[50])
     begin
@@ -57,4 +63,6 @@ codeunit 50100 "Library_FF_TSL"
                 Assert.AreEqual(IsActive, Conditions.IsActive.AsBoolean(), 'Condition ' + ConditionCode + ' IsActive should be ' + Format(IsActive));
         Conditions.Close()
     end;
+
+    #endregion
 }

@@ -17,6 +17,7 @@ codeunit 58537 "FeatureMgt_FF_TSL"
         GlobalContextAttributesContextID, EnabledFeatureIds : Text;
         GlobalContextAttributes: JsonObject;
         DefaultProfileID: Code[30];
+        EnabledFeatureIdsCalculated: Boolean;
 
     #region Library
 
@@ -142,7 +143,7 @@ codeunit 58537 "FeatureMgt_FF_TSL"
     var
         CallerModuleInfo: ModuleInfo;
     begin
-        Enabled := StrPos(EnabledFeatureIds, '#' + FeatureID + ',') <> 0;
+        Enabled := StrPos(GetEnabledFeatureIds(false), '#' + FeatureID + ',') <> 0;
         if Session.GetExecutionContext() <> ExecutionContext::Normal then
             exit;
         if Database.IsInWriteTransaction() then
@@ -153,62 +154,42 @@ codeunit 58537 "FeatureMgt_FF_TSL"
 
     #endregion
 
-    #region ApplicationArea
+    #region EnabledFeatureIds & ApplicationArea
 
-    internal procedure RefreshApplicationArea(RefreshProviders: Boolean)
+    internal procedure RefreshEnabledFeatureIds(RefreshProviders: Boolean)
+    begin
+        EnabledFeatureIds := '';
+        EnabledFeatureIdsCalculated := false;
+        GetEnabledFeatureIds(RefreshProviders);
+    end;
+
+    local procedure GetEnabledFeatureIds(RefreshProviders: Boolean): Text
     var
         Provider: Record Provider_FF_TSL;
         IProvider: Interface IProvider_FF_TSL;
         FeatureIDs: List of [Code[50]];
         FeatureID: Code[50];
         TextBuilderVar: TextBuilder;
-        CurrentApplicationArea: Text;
         FeatureFunctionalityKeyLbl: Label '#FFTSL', Locked = true;
     begin
-        if Session.GetExecutionContext() <> ExecutionContext::Normal then
-            exit;
-
-        if Provider.FindSet() then
-            repeat
-                IProvider := Provider.Type;
-                if RefreshProviders then
-                    IProvider.ClearCache(Provider.ConnectionInfo());
-                Clear(FeatureIDs);
-                if TryGetEnabled(IProvider, Provider.ConnectionInfo(), FeatureIDs) then
-                    foreach FeatureID in FeatureIDs do
-                        TextBuilderVar.Append('#' + FeatureID + ',')
-                else
-                    LogProviderFailed(Provider.Code, 'GetEnabled');
-            until Provider.Next() = 0;
-        EnabledFeatureIds := TextBuilderVar.ToText() + FeatureFunctionalityKeyLbl;
-
-        CurrentApplicationArea := GetApplicationAreaSetup();
-        if CurrentApplicationArea <> '' then
-            ApplicationArea(CurrentApplicationArea + ',' + EnabledFeatureIds);
-    end;
-
-    local procedure GetApplicationAreaSetup() ApplicationAreas: Text
-    var
-        ClientTypeManagement: Codeunit "Client Type Management";
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-        EnvironmentInformation: Codeunit "Environment Information";
-        RecordRef: RecordRef;
-        FieldRef: FieldRef;
-        FieldIndex: Integer;
-    begin
-        // LogInManagement.CompanyOpen:LogInStart is behind a bellow conditions. LogInStart includes a logic to set an ApplicationArea so it will always blank for background session.
-        if GuiAllowed and (ClientTypeManagement.GetCurrentClientType() <> ClientType::Background) then begin
-            ApplicationAreas := ApplicationAreaMgmtFacade.GetApplicationAreaSetup();
-            if (ApplicationAreas = '') and EnvironmentInformation.IsOnPrem() then begin
-                RecordRef.Open(Database::"Application Area Setup");
-                ApplicationAreas := '#All';
-                // Index 1 to 3 are used for the Primary Key fields, we need to skip these fields
-                for FieldIndex := 4 to RecordRef.FieldCount do begin
-                    FieldRef := RecordRef.FieldIndex(FieldIndex);
-                    ApplicationAreas := ApplicationAreas + ',#' + DelChr(FieldRef.Name);
-                end;
-            end
-        end
+        if not EnabledFeatureIdsCalculated then begin
+            if Provider.FindSet() then
+                repeat
+                    IProvider := Provider.Type;
+                    if RefreshProviders then
+                        IProvider.ClearCache(Provider.ConnectionInfo());
+                    Clear(FeatureIDs);
+                    if TryGetEnabled(IProvider, Provider.ConnectionInfo(), FeatureIDs) then
+                        foreach FeatureID in FeatureIDs do
+                            TextBuilderVar.Append('#' + FeatureID + ',')
+                    else
+                        LogProviderFailed(Provider.Code, 'GetEnabled');
+                until Provider.Next() = 0;
+            EnabledFeatureIds := TextBuilderVar.ToText() + FeatureFunctionalityKeyLbl;
+            EnabledFeatureIdsCalculated := true;
+            SetApplicationArea();
+        end;
+        exit(EnabledFeatureIds);
     end;
 
     [TryFunction]
@@ -216,6 +197,41 @@ codeunit 58537 "FeatureMgt_FF_TSL"
     local procedure TryGetEnabled(IProvider: Interface IProvider_FF_TSL; ConnectionInfo: JsonObject; var FeatureIDs: List of [Code[50]])
     begin
         FeatureIDs := IProvider.GetEnabled(ConnectionInfo)
+    end;
+
+    local procedure SetApplicationArea()
+    var
+        ClientTypeManagement: Codeunit "Client Type Management";
+        CurrentApplicationArea: Text;
+    begin
+        if Session.GetExecutionContext() <> ExecutionContext::Normal then
+            exit;
+        // LogInManagement.CompanyOpen:LogInStart is behind a bellow conditions. LogInStart includes a logic to set an ApplicationArea so it will always blank for background session.
+        if GuiAllowed and (ClientTypeManagement.GetCurrentClientType() <> ClientType::Background) then begin
+            CurrentApplicationArea := GetApplicationAreaSetup();
+            if CurrentApplicationArea <> '' then
+                ApplicationArea(CurrentApplicationArea + ',' + EnabledFeatureIds);
+        end
+    end;
+
+    local procedure GetApplicationAreaSetup() ApplicationAreas: Text
+    var
+        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+        EnvironmentInformation: Codeunit "Environment Information";
+        RecordRef: RecordRef;
+        FieldRef: FieldRef;
+        FieldIndex: Integer;
+    begin
+        ApplicationAreas := ApplicationAreaMgmtFacade.GetApplicationAreaSetup();
+        if (ApplicationAreas = '') and EnvironmentInformation.IsOnPrem() then begin
+            RecordRef.Open(Database::"Application Area Setup");
+            ApplicationAreas := '#All';
+            // Index 1 to 3 are used for the Primary Key fields, we need to skip these fields
+            for FieldIndex := 4 to RecordRef.FieldCount do begin
+                FieldRef := RecordRef.FieldIndex(FieldIndex);
+                ApplicationAreas := ApplicationAreas + ',#' + DelChr(FieldRef.Name);
+            end;
+        end
     end;
 
     #endregion
@@ -373,10 +389,11 @@ codeunit 58537 "FeatureMgt_FF_TSL"
 
     #region Subscribers
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", OnAfterLogin, '', true, true)]
     local procedure OnAfterLogin()
     begin
-        RefreshApplicationArea(true)
+        if GuiAllowed then
+            GetEnabledFeatureIds(false)
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"User Settings", OnUpdateUserSettings, '', true, true)]

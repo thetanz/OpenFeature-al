@@ -63,7 +63,7 @@ table 58535 "Feature_FF_TSL"
     var
         FeatureMgt: Codeunit FeatureMgt_FF_TSL;
     begin
-        FeatureMgt.RefreshApplicationArea(false)
+        FeatureMgt.RefreshEnabledFeatureIds(false)
     end;
 
     internal procedure GetProvider(): Record Provider_FF_TSL

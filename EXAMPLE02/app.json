@@ -15,7 +15,7 @@
       "id": "c42f2379-d7b5-4378-8ce4-9bca293c6189",
       "publisher": "Theta Systems Limited",
       "name": "OpenFeature",
-      "version": "3.0.0.0"
+      "version": "3.3.0.0"
     }
   ],
   "screenshots": [],
@@ -28,5 +28,6 @@
     }
   ],
   "target": "Cloud",
-  "contextSensitiveHelpUrl": "https://learn.microsoft.com/dynamics365/business-central/"
+  "contextSensitiveHelpUrl": "https://learn.microsoft.com/dynamics365/business-central/",
+  "runtime": "11.0"
 }

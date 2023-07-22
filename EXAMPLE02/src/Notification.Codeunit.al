@@ -26,7 +26,7 @@ codeunit 50201 "Notification"
         Hyperlink('https://appsource.microsoft.com/en-us/product/dynamics-365-business-central/PUBID.thetasystemslimited%7CAID.bc_excel_importer%7CPAPPID.24466323-aee9-4049-a66d-a1af24466323?exp=ubp8&tab=Reviews');
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", OnInitializingNotificationWithDefaultState, '', false, false)]
     local procedure OnInitializingNotificationWithDefaultState()
     var
         MyNotifications: Record "My Notifications";
