@@ -154,7 +154,7 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
         exit(TrySendRequest(RequestPathTok, Content, ConnectionInfo))
     end;
 
-    //[NonDebuggable]
+    [NonDebuggable]
     local procedure GetProject(var ConnectionInfo: JsonObject): Boolean
     var
         ResponseJsonToken: JsonToken;
@@ -172,7 +172,7 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
         exit(TrySendRequest('POST', Path, Content, ConnectionInfo, ResponseJsonToken))
     end;
 
-    //[NonDebuggable]
+    [NonDebuggable]
     local procedure TrySendRequest(Path: Text; ConnectionInfo: JsonObject; var ResponseJsonToken: JsonToken): Boolean
     var
         Content: JsonObject;
@@ -181,7 +181,7 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
     end;
 
     [TryFunction]
-    //[NonDebuggable]
+    [NonDebuggable]
     local procedure TrySendRequest(Method: Text; Path: Text; Content: JsonObject; ConnectionInfo: JsonObject; var ResponseJsonToken: JsonToken)
     var
         ResponseMessage: Codeunit HttpResponseMessage_FF_TSL;
