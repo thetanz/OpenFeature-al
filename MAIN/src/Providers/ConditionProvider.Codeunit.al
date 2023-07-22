@@ -126,7 +126,7 @@ codeunit 70254351 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
             if Confirm(KillSwitchQst) then begin
                 FeatureCondition.SetRange(FeatureID, FeatureID);
                 FeatureCondition.DeleteAll();
-                FeatureMgt.RefreshApplicationArea(false);
+                FeatureMgt.RefreshEnabledFeatureIds(false);
             end
     end;
 
@@ -237,32 +237,32 @@ codeunit 70254351 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
         FeatureCondition.DeleteAll()
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::FeatureCondition_FF_TSL, 'OnAfterInsertEvent', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::FeatureCondition_FF_TSL, OnAfterInsertEvent, '', true, true)]
     local procedure OnAfterInsertFeatureCondition(var Rec: Record FeatureCondition_FF_TSL; RunTrigger: Boolean)
     begin
         if RunTrigger then
-            FeatureMgt.RefreshApplicationArea(false)
+            FeatureMgt.RefreshEnabledFeatureIds(false)
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::FeatureCondition_FF_TSL, 'OnAfterModifyEvent', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::FeatureCondition_FF_TSL, OnAfterModifyEvent, '', true, true)]
     local procedure OnAfterModifyFeatureCondition(var Rec: Record FeatureCondition_FF_TSL; var xRec: Record FeatureCondition_FF_TSL; RunTrigger: Boolean)
     begin
         if RunTrigger then
-            FeatureMgt.RefreshApplicationArea(false)
+            FeatureMgt.RefreshEnabledFeatureIds(false)
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::FeatureCondition_FF_TSL, 'OnAfterRenameEvent', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::FeatureCondition_FF_TSL, OnAfterRenameEvent, '', true, true)]
     local procedure OnAfterRenameFeatureCondition(var Rec: Record FeatureCondition_FF_TSL; var xRec: Record FeatureCondition_FF_TSL; RunTrigger: Boolean)
     begin
         if RunTrigger then
-            FeatureMgt.RefreshApplicationArea(false)
+            FeatureMgt.RefreshEnabledFeatureIds(false)
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::FeatureCondition_FF_TSL, 'OnAfterDeleteEvent', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::FeatureCondition_FF_TSL, OnAfterDeleteEvent, '', true, true)]
     local procedure OnAfterDeleteFeatureCondition(var Rec: Record FeatureCondition_FF_TSL; RunTrigger: Boolean)
     begin
         if RunTrigger then
-            FeatureMgt.RefreshApplicationArea(false)
+            FeatureMgt.RefreshEnabledFeatureIds(false)
     end;
 
     #endregion

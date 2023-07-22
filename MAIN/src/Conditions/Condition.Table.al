@@ -47,7 +47,7 @@ table 70254347 "Condition_FF_TSL"
                 IConditionFunction := Function;
                 IConditionFunction.LookupConditionArgument(Argument);
                 ConditionProvider.RecalculateCondition(Rec, false);
-                FeatureMgt.RefreshApplicationArea(false)
+                FeatureMgt.RefreshEnabledFeatureIds(false)
             end;
         }
     }
@@ -72,7 +72,7 @@ table 70254347 "Condition_FF_TSL"
     trigger OnModify()
     begin
         ConditionProvider.RecalculateCondition(Rec, false);
-        FeatureMgt.RefreshApplicationArea(false)
+        FeatureMgt.RefreshEnabledFeatureIds(false)
     end;
 
     trigger OnRename()
@@ -91,7 +91,7 @@ table 70254347 "Condition_FF_TSL"
                 Error('');
         FeatureCondition.DeleteAll();
         ConditionProvider.RecalculateCondition(Rec, true);
-        FeatureMgt.RefreshApplicationArea(false)
+        FeatureMgt.RefreshEnabledFeatureIds(false)
     end;
 
     procedure ValidateArgument(NewArgument: Text): Boolean
@@ -104,7 +104,7 @@ table 70254347 "Condition_FF_TSL"
         if Argument <> NewArgumentValue then begin
             Argument := NewArgumentValue;
             ConditionProvider.RecalculateCondition(Rec, false);
-            FeatureMgt.RefreshApplicationArea(false);
+            FeatureMgt.RefreshEnabledFeatureIds(false);
             exit(true)
         end
     end;

@@ -9,6 +9,7 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
 
     var
         FeatureMgt: Codeunit FeatureMgt_FF_TSL;
+        HttpClient: HttpClient;
         PersonalAPIKeyTxt: Label 'PersonalAPIKey', Locked = true;
         ProjectIDKeyTxt: Label 'ProjectIDKey', Locked = true;
         ProjectAPIKeyTxt: Label 'ProjectAPIKey', Locked = true;
@@ -20,8 +21,8 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
     /// Add a new PostHog provider to the system.
     /// </summary>
     /// <param name="Code">Provider code</param>
-    /// <param name="PersonalAPIKey">PostHug Personal API key</param>
-    /// <param name="ProjectID">PostHug Project ID</param>
+    /// <param name="PersonalAPIKey">PostHog Personal API key</param>
+    /// <param name="ProjectID">PostHog Project ID</param>
     /// <returns>True if the provider was added successfully, false otherwise</returns>
     [NonDebuggable]
     procedure AddProvider(Code: Code[20]; PersonalAPIKey: Text; ProjectID: Text): Boolean
@@ -153,7 +154,7 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
         exit(TrySendRequest(RequestPathTok, Content, ConnectionInfo))
     end;
 
-    [NonDebuggable]
+    //[NonDebuggable]
     local procedure GetProject(var ConnectionInfo: JsonObject): Boolean
     var
         ResponseJsonToken: JsonToken;
@@ -171,7 +172,7 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
         exit(TrySendRequest('POST', Path, Content, ConnectionInfo, ResponseJsonToken))
     end;
 
-    [NonDebuggable]
+    //[NonDebuggable]
     local procedure TrySendRequest(Path: Text; ConnectionInfo: JsonObject; var ResponseJsonToken: JsonToken): Boolean
     var
         Content: JsonObject;
@@ -180,14 +181,15 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
     end;
 
     [TryFunction]
-    [NonDebuggable]
+    //[NonDebuggable]
     local procedure TrySendRequest(Method: Text; Path: Text; Content: JsonObject; ConnectionInfo: JsonObject; var ResponseJsonToken: JsonToken)
     var
-        HttpClient: HttpClient;
-        HttpRequestMessage: HttpRequestMessage;
+        ResponseMessage: Codeunit HttpResponseMessage_FF_TSL;
         HttpResponseMessage: HttpResponseMessage;
+        HttpRequestMessage: HttpRequestMessage;
         HttpHeaders: HttpHeaders;
         ResponseAsText, ContextID, ContentAsText : Text;
+        IsHandled: Boolean;
         HostTxt: Label 'https://eu.posthog.com', Locked = true;
         ServiceUnavailableErr: Label 'PostHog service is unavailable.';
         Service4XXErr: Label 'PostHog request is invalid. Reason: %1.', Comment = '%1 - ReasonPhrase';
@@ -203,6 +205,7 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
                 ContextID := FeatureMgt.GetCurrentUserContextID();
             Content.Add('distinct_id', ContextID);
             Content.WriteTo(ContentAsText);
+            Content.Replace('api_key', 'REDACTED');
             HttpRequestMessage.Content.WriteFrom(ContentAsText);
             HttpRequestMessage.Content.GetHeaders(HttpHeaders);
             HttpHeaders.Remove('Content-Type');
@@ -211,17 +214,34 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
             HttpRequestMessage.GetHeaders(HttpHeaders);
             HttpHeaders.Add('Authorization', 'Bearer ' + FeatureMgt.GetValue(ConnectionInfo, PersonalAPIKeyTxt));
         end;
-        if not HttpClient.Send(HttpRequestMessage, HttpResponseMessage) then
-            Error(ServiceUnavailableErr);
-        if not HttpResponseMessage.IsSuccessStatusCode then
-            if (300 <= HttpResponseMessage.HttpStatusCode) and (HttpResponseMessage.HttpStatusCode < 500) then
-                Error(Service4XXErr, HttpResponseMessage.ReasonPhrase)
+        OnBeforeSendRequest(Method, Path, Content, ResponseMessage, IsHandled);
+        if not IsHandled then
+            if HttpClient.Send(HttpRequestMessage, HttpResponseMessage) then
+                ResponseMessage.Init(HttpResponseMessage)
             else
-                Error(Service5XXErr, HttpResponseMessage.ReasonPhrase);
-        if HttpResponseMessage.Content.ReadAs(ResponseAsText) then
+                Error(ServiceUnavailableErr);
+        if not ResponseMessage.IsSuccessStatusCode() then
+            if (300 <= ResponseMessage.HttpStatusCode()) and (ResponseMessage.HttpStatusCode() < 500) then
+                Error(Service4XXErr, ResponseMessage.ReasonPhrase())
+            else
+                Error(Service5XXErr, ResponseMessage.ReasonPhrase());
+        if ResponseMessage.Content().ReadAs(ResponseAsText) then
             if ResponseAsText <> '' then
                 if not ResponseJsonToken.ReadFrom(ResponseAsText) then
                     Error(FailedToParseErr);
+    end;
+
+    #endregion
+
+    #region Events
+
+    /// <summary>
+    /// This event is raised on before provider sends a request to PostHog Service.
+    /// </summary>
+    [BusinessEvent(false)]
+    local procedure OnBeforeSendRequest(Method: Text; Path: Text; Content: JsonObject; var HttpResponseMessage: Codeunit HttpResponseMessage_FF_TSL; var IsHandled: Boolean)
+    begin
+
     end;
 
     #endregion
