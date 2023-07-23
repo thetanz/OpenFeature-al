@@ -13,10 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 
 ### Added
 <!---for new features--->
-- `PostHogProvider_FF_TSL`.`OnBeforeSendRequest` event to enable PostHog Service mocking from a test app
+- 
 ### Changed
 <!---for changes in existing functionality--->
-- Validate flags on demand for a background session [#21](https://github.com/thetanz/OpenFeature-al/issues/21)
+- 
 ### Deprecated
 <!---for soon-to-be removed features--->
 - 
@@ -26,6 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 <!---in case of vulnerabilities--->
 - 
+## 3.4.0.0 - `2023-07-23`
+### Added
+- `PostHogProvider_FF_TSL`.`OnBeforeSendRequest` event to enable PostHog Service mocking from a test app
+### Changed
+- Validate flags on demand for a background session [#21](https://github.com/thetanz/OpenFeature-al/issues/21)
 ## 3.3.0.0 - `2023-07-13`
 ### Fixed
 - Extension somehow breaks other extensions install [#18](https://github.com/thetanz/OpenFeature-al/issues/18)
