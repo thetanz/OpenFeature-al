@@ -38,7 +38,7 @@ OpenFeature for AL is created to populate the feature flag-driven development am
       "id": "c42f2379-d7b5-4378-8ce4-9bca293c6189",
       "publisher": "Theta Systems Limited",
       "name": "OpenFeature",
-      "version": "3.3.0.0"
+      "version": "3.4.0.0"
     }
 ```
 ## Usage
