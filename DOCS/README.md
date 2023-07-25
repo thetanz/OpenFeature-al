@@ -1,6 +1,5 @@
 <p align="center">
-     <img src="https://www.svgrepo.com/download/391957/control-off-switch-toggle.svg" width=30% style="height:10rem">
-     <img src="https://www.svgrepo.com/download/391961/control-on-switch-toggle.svg" width=30% style="height:10rem">
+    <img src="switch-svgrepo-com.svg" width=30% style="height:10rem">
 </p>
 <h2 align="center">OpenFeature for AL</h2>
 <p align="center">
