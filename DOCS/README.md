@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="switch-svgrepo-com.svg" width=30% style="height:10rem">
+    <img src="images/switch-svgrepo-com.svg" width=30% style="height:10rem">
 </p>
 <h2 align="center">OpenFeature for AL</h2>
 <p align="center">
