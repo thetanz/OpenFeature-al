@@ -26,7 +26,7 @@
 </p>
 
 ## Overview
-OpenFeature for AL is created to populate the feature flag-driven development among Dynamics 365 Business Central community by providing a workable tool to manage it.
+OpenFeature for AL is created to popularise the feature flag-driven development among Dynamics 365 Business Central community by providing a workable tool to manage it.
 ## Installation
 ### 1. Deploy OpenFeature extension to your environment
 - **For On-Prem and local development**: Clone PTE release `git clone -b release/PTE https://github.com/thetanz/OpenFeature-al.git`, package extension from `MAIN` folder and deploy to your On-Prem environment.
