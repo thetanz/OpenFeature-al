@@ -83,6 +83,11 @@ if not PostHogProvider.AddProvider('THETA_POSTHOG', PersonalAPIKey, ProjectID) t
 ```
 ## Roadmap
 See the [open issues](https://github.com/thetanz/OpenFeature-al/issues) for a list of proposed features (and known issues).
+## License
+OpenFeature for AL [licensed under GNU Lesser General Public License version 3 (LGPL-3.0)](LICENSE). Key features of the LGPL-3.0 include:
+- **Usage Freedom**: Allows free use _OpenFeature for AL_ in any projects, whether those projects are open-source or proprietary.
+- **Modification Requirements**: Requires that any modifications made to the _OpenFeature for AL_ itself be released under the same LGPL terms.
+- **Linking with Proprietary Software**: Allows linking _OpenFeature for AL_ with any proprietary software without requiring the proprietary software to be open-sourced.
 ## Contributing
 Contributions make the open-source community a fantastic place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 1. Fork the Project
@@ -90,8 +95,6 @@ Contributions make the open-source community a fantastic place to learn, inspire
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a pull request
-## License
-It is distributed under GNU v3.0. See [`LICENSE`](LICENSE) for more information.
 ## Contact
 - Owner: [@vodyl](https://twitter.com/vodyl)
 - Link: [https://github.com/thetanz/OpenFeature-al](https://github.com/thetanz/OpenFeature-al)
