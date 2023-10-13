@@ -106,6 +106,7 @@ codeunit 58651 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
         KillSwitchQst: Label 'You are turning off the targeting rules for that feature and serving the off variation. Please confirm to proceed.';
         StrmenuInstructionLbl: Label 'Enable feature for:';
         StrmenuOptionLbl: Label '%1,Everyone', Comment = '%1 = User ID';
+        LogoutAndBackInLbl: Label 'Remember that you need to logout and back in to see the changes.';
         StrmenuResult: Integer;
     begin
         if not FeatureCondition.WritePermission() then
@@ -127,7 +128,9 @@ codeunit 58651 "ConditionProvider_FF_TSL" implements IProvider_FF_TSL
                 FeatureCondition.SetRange(FeatureID, FeatureID);
                 FeatureCondition.DeleteAll();
                 FeatureMgt.RefreshEnabledFeatureIds(false);
-            end
+            end;
+
+        Message(LogoutAndBackInLbl);
     end;
 
     [NonDebuggable]
