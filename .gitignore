@@ -288,3 +288,5 @@ __pycache__/
 EXAMPLE02/src/HandcodeSecretProvider.Codeunit.al
 **/*.http
 **/.scripts
+TEST/.altestrunner/config.json
+.DS_Store
