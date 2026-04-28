@@ -117,7 +117,7 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
                     FeatureMgt.GetValue(FeatureJsonToken.AsObject(), 'name')
                 )
     end;
-
+#pragma warning disable AA0228
     [NonDebuggable]
     local procedure CreateIdentity(User: Record User; ConnectionInfo: JsonObject): Boolean
     var
@@ -129,6 +129,7 @@ codeunit 70254353 "PostHogProvider_FF_TSL" implements IProvider_FF_TSL
         Content.Add('$set', ContextAttributes);
         exit(Capture(PostHogEvent_FF_TSL::Identify, CurrentDateTime(), Content, ConnectionInfo))
     end;
+#pragma warning restore AA0228
 
     [NonDebuggable]
     local procedure FeatureFlagCalled(EventDateTime: DateTime; CustomDimensions: Dictionary of [Text, Text]; Enabled: Boolean; ConnectionInfo: JsonObject): Boolean

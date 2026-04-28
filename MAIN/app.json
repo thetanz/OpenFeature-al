@@ -2,20 +2,23 @@
   "id": "c42f2379-d7b5-4378-8ce4-9bca293c6189",
   "name": "OpenFeature",
   "publisher": "Theta Systems Limited",
-  "version": "3.4.0.1",
+  "version": "4.0.0.0",
   "brief": "Feature Flagging / Toggling / Switching",
   "description": "Same as a brief one",
   "privacyStatement": "https://www.theta.co.nz/privacy-policy",
   "EULA": "https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RE5d5ga",
-  "help": "https://www.theta.co.nz/contact-us",
+  "help": "http://featureflags.io/feature-flags/",
   "url": "https://www.theta.co.nz/",
   "logo": "../logo.png",
   "propagateDependencies": true,
   "dependencies": [],
+  "suppressWarnings": [
+    "AA0247"
+  ],
   "screenshots": [],
   "target": "Cloud",
-  "platform": "22.0.0.0",
-  "application": "22.0.0.0",
+  "platform": "27.0.0.0",
+  "application": "27.0.0.0",
   "idRanges": [
     {
       "from": 70254345,
@@ -23,13 +26,18 @@
     }
   ],
   "contextSensitiveHelpUrl": "http://featureflags.io/feature-flags/",
-  "supportedLocales": ["en-NZ", "en-AU", "en-US", "en-GB"],
+  "supportedLocales": [
+    "en-NZ",
+    "en-AU",
+    "en-US",
+    "en-GB"
+  ],
   "resourceExposurePolicy": {
     "allowDebugging": true,
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
   },
-  "runtime": "11.0",
+  "runtime": "16.0",
   "features": [
     "TranslationFile",
     "NoImplicitWith",
