@@ -355,9 +355,11 @@ codeunit 70254347 "FeatureMgt_FF_TSL"
                 if Provider.CaptureEvents().Get(Format(FeatureEvent), CaptureEventJsonToken) then begin
                     CustomDimensions.Add('FeatureID', FeatureID);
                     IProvider := Provider.Type;
+#pragma warning disable AA0005
                     if CaptureEventJsonToken.AsValue().AsBoolean() then begin
                         // TODO: Capture event in background
                     end else
+#pragma warning restore AA0005
                         TryCaptureEvent(IProvider, Provider.ConnectionInfo(), EventDateTime, FeatureEvent, CustomDimensions);
                 end
             end
