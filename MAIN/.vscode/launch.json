@@ -22,7 +22,7 @@
             "request": "launch",
             "name": "Local Container",
             "environmentType": "OnPrem",
-            "server": "http://bccomm22",
+            "server": "http://bc27nz",
             "serverInstance": "BC",
             "authentication": "UserPassword",
             "breakOnError": true,

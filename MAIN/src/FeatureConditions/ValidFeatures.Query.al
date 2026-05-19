@@ -14,14 +14,14 @@ query 70254346 "ValidFeatures_FF_TSL"
             {
 
             }
-            filter(ConditionCodeFilter; ConditionCodeFilter)
-            {
-
-            }
             dataitem(FeatureCondition2; FeatureCondition_FF_TSL)
             {
-                DataItemLink = FeatureID = FeatureCondition.FeatureID, ConditionCode = FeatureCondition.ConditionCodeFilter;
+                DataItemLink = FeatureID = FeatureCondition.FeatureID;
                 SqlJoinType = LeftOuterJoin;
+                filter(ConditionCodeFilter; ConditionCode)
+                {
+
+                }
                 column(Count)
                 {
                     Method = Count;
